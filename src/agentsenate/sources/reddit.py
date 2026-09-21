@@ -42,7 +42,7 @@ RSS_FEEDS = {
     "top_month": "/r/{subreddit}/top/.rss?t=month",
     "top_year": "/r/{subreddit}/top/.rss?t=year",
 }
-HOSTS = ("https://www.reddit.com",)
+HOSTS = ("https://www.reddit.com", "https://old.reddit.com")
 
 
 class RedditSource:

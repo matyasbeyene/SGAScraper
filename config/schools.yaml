@@ -242,7 +242,7 @@ sources:
     min_request_interval_seconds: 0.5
     document_kinds: [agenda, minutes, notice, committee]
   newsletters:
-    enabled: false
+    enabled: true
     min_request_interval_seconds: 0.5
     max_articles_per_feed: 3
     fetch_article_body: false
