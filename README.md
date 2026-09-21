@@ -84,10 +84,9 @@ Add these repository secrets:
 - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 - `GMAIL_ADDRESS`, `GMAIL_APP_PASSWORD`
 
-Reddit no longer needs GitHub secrets. Add repository variable `DEEPSEEK_MODEL` if you want to
-override the default (`deepseek-flash`).
-The workflow has two UTC schedules and an Eastern-time guard so daylight-saving changes do not
-shift the local delivery time. Manual runs default to dry-run and upload the HTML preview.
+Reddit no longer needs GitHub secrets. The workflow has two UTC schedules and an Eastern-time
+guard so daylight-saving changes do not shift the local delivery time. Pushes run a dry-run and
+upload the HTML preview. Manual runs also dry-run unless `send_email` is set to `true`.
 
 ## Reply research on Vercel
 

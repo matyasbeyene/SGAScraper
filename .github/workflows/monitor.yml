@@ -4,15 +4,14 @@ on:
   push:
     branches: [main]
   schedule:
-    # Two UTC schedules plus the timezone guard keep this at 8 AM through US DST changes.
     - cron: "0 12 * * *"
     - cron: "0 13 * * *"
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: "Analyze and upload a preview without emailing"
+      send_email:
+        description: "Send email instead of dry-running"
         required: false
-        default: "true"
+        default: "false"
 
 permissions:
   contents: read
@@ -51,25 +50,19 @@ jobs:
       - name: Run monitor
         if: steps.time.outputs.run == 'true'
         env:
-          REDDIT_USER_AGENT: ${{ vars.REDDIT_USER_AGENT || 'agentsenate/0.1 (contact: bradywilliams2029@gmail.com)' }}
+          REDDIT_USER_AGENT: agentsenate/0.1 (contact: matyasbeyene@gmail.com)
           STORAGE_BACKEND: supabase
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          DEEPSEEK_MODEL: ${{ vars.DEEPSEEK_MODEL || 'deepseek-flash' }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-4-5' }}
+          DEEPSEEK_MODEL: deepseek-flash
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          RESEND_FROM: ${{ vars.RESEND_FROM }}
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: |
-          if [[ "${{ github.event_name }}" != "workflow_dispatch" || "${{ inputs.dry_run }}" == "true" ]]; then
-            uv run agentsenate --dry-run
-          else
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.send_email }}" == "true" ]]; then
             uv run agentsenate
+          else
+            uv run agentsenate --dry-run
           fi
 
       - uses: actions/upload-artifact@v4
