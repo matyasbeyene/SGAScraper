@@ -1,6 +1,8 @@
 name: Daily initiative monitor
 
 on:
+  push:
+    branches: [main]
   schedule:
     # Two UTC schedules plus the timezone guard keep this at 8 AM through US DST changes.
     - cron: "0 12 * * *"
@@ -9,8 +11,8 @@ on:
     inputs:
       dry_run:
         description: "Analyze and upload a preview without emailing"
-        type: boolean
-        default: true
+        required: false
+        default: "true"
 
 permissions:
   contents: read
@@ -64,14 +66,14 @@ jobs:
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: |
-          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+          if [[ "${{ github.event_name }}" != "workflow_dispatch" || "${{ inputs.dry_run }}" == "true" ]]; then
             uv run agentsenate --dry-run
           else
             uv run agentsenate
           fi
 
       - uses: actions/upload-artifact@v4
-        if: steps.time.outputs.run == 'true' && inputs.dry_run == true
+        if: steps.time.outputs.run == 'true'
         with:
           name: digest-preview
           path: digest-preview.html
