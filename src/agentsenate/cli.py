@@ -86,11 +86,7 @@ def main() -> None:
             )
         )
         return
-    storage = (
-        MemoryStorage(previously_ran=True)
-        if args.dry_run
-        else _build_storage(secrets)
-    )
+    storage = MemoryStorage(previously_ran=True) if args.dry_run else _build_storage(secrets)
     analyzer = _build_analyzer(secrets, config.email.max_topics)
     mailer: Mailer | None
     if args.dry_run:
