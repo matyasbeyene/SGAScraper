@@ -232,7 +232,7 @@ sources:
   reddit:
     enabled: true
     include_top_level_comments: false
-    min_request_interval_seconds: 2
+    min_request_interval_seconds: 0.5
     lookback_days: 7
     feeds: [new]
     max_pages: 1
@@ -242,10 +242,10 @@ sources:
     min_request_interval_seconds: 0.5
     document_kinds: [agenda, minutes, notice, committee]
   newsletters:
-    enabled: true
-    min_request_interval_seconds: 1
-    max_articles_per_feed: 10
-    fetch_article_body: true
+    enabled: false
+    min_request_interval_seconds: 0.5
+    max_articles_per_feed: 3
+    fetch_article_body: false
   yikyak:
     enabled: false
     provider: null
