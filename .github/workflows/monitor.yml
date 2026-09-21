@@ -58,6 +58,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          AGENTSENATE_CONFIG: config/smoke.yaml
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.send_email }}" == "true" ]]; then
             uv run agentsenate

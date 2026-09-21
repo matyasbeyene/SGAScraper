@@ -1,0 +1,33 @@
+schools:
+  - name: University of Georgia
+    aliases: [UGA, Georgia]
+    subreddits: [UGA]
+    metadata:
+      conference: SEC
+      state: Georgia
+
+email:
+  recipients:
+    - mkb59906@uga.edu
+  reply_to: ""
+  authorized_reply_senders: []
+  max_topics: 5
+  minimum_actionability_score: 3
+  maximum_attachment_bytes: 5000000
+  maximum_total_attachment_bytes: 10000000
+
+sources:
+  reddit:
+    enabled: true
+    include_top_level_comments: false
+    min_request_interval_seconds: 0
+    lookback_days: 7
+    feeds: [new]
+    max_pages: 1
+  usg_board:
+    enabled: false
+  newsletters:
+    enabled: false
+  yikyak:
+    enabled: false
+    provider: null
