@@ -180,6 +180,8 @@ class DeepSeekAnalyzer:
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_content},
                 ],
+                "thinking": {"type": "disabled"},
+                "reasoning_effort": "none",
                 "temperature": 0,
                 "max_tokens": MAX_OUTPUT_TOKENS,
             },

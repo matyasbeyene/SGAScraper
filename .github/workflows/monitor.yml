@@ -60,10 +60,12 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           AGENTSENATE_CONFIG: config/smoke.yaml
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.send_email }}" == "true" ]]; then
-            uv run agentsenate
-          else
+          if [[ "${{ github.event_name }}" == "push" ]]; then
             uv run agentsenate --dry-run
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.send_email }}" != "true" ]]; then
+            uv run agentsenate --dry-run
+          else
+            uv run agentsenate
           fi
 
       - uses: actions/upload-artifact@v4
