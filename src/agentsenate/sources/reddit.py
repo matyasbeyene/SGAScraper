@@ -42,7 +42,7 @@ RSS_FEEDS = {
     "top_month": "/r/{subreddit}/top/.rss?t=month",
     "top_year": "/r/{subreddit}/top/.rss?t=year",
 }
-HOSTS = ("https://www.reddit.com", "https://old.reddit.com")
+HOSTS = ("https://www.reddit.com",)
 
 
 class RedditSource:
@@ -61,7 +61,7 @@ class RedditSource:
         self.http = RateLimitedClient(
             client
             or httpx.Client(
-                timeout=30,
+                timeout=8,
                 follow_redirects=True,
                 headers={"User-Agent": user_agent},
             ),

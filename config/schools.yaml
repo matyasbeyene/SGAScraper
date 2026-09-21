@@ -237,7 +237,7 @@ sources:
     feeds: [new]
     max_pages: 1
   usg_board:
-    enabled: true
+    enabled: false
     archive_url: https://www.usg.edu/regents/meetings/date/{year}/
     min_request_interval_seconds: 0.5
     document_kinds: [agenda, minutes, notice, committee]
