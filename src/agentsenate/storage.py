@@ -441,7 +441,7 @@ class SupabaseRestStorage:
         )
 
     def recent_context(self, limit: int = 20) -> list[dict[str, Any]]:
-        return self._request(
+        rows = self._request(
             "GET",
             "source_items",
             params={
@@ -451,6 +451,9 @@ class SupabaseRestStorage:
                 "limit": str(limit),
             },
         ).json()
+        if not isinstance(rows, list):
+            raise RuntimeError("Supabase returned an unexpected recent context payload")
+        return [row for row in rows if isinstance(row, dict)]
 
     def _update_ids(self, values: dict[str, Any], external_ids: list[str]) -> None:
         if not external_ids:
