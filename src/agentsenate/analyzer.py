@@ -182,7 +182,6 @@ class DeepSeekAnalyzer:
                 ],
                 "temperature": 0,
                 "max_tokens": MAX_OUTPUT_TOKENS,
-                "response_format": {"type": "json_object"},
             },
         )
         response.raise_for_status()
@@ -191,7 +190,10 @@ class DeepSeekAnalyzer:
         actual = _deepseek_usage_cost(payload)
         self.spent_usd += actual
         logger.info("DeepSeek brief spent about $%.4f (cap $%.2f)", actual, self.max_cost_usd)
-        text = str(payload["choices"][0]["message"]["content"])
+        text = str(payload["choices"][0]["message"].get("content") or "")
+        if not text.strip():
+            logger.warning("DeepSeek returned an empty brief; treating it as no selections")
+            return []
         parsed = AnalysisBatch.model_validate_json(_strip_code_fence(text))
         known = {item.external_id for item in items}
         selected = [
