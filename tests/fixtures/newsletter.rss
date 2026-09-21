@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Campus News</title>
+    <item>
+      <title>Dining halls add late hours</title>
+      <link>https://news.example.edu/2026/09/dining-late-hours/</link>
+      <pubDate>Tue, 15 Sep 2026 10:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<p>The dining program will stay open until midnight.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>Old commencement recap</title>
+      <link>https://news.example.edu/2026/08/old-commencement/</link>
+      <pubDate>Mon, 10 Aug 2026 10:00:00 GMT</pubDate>
+      <description>Too old for the lookback window.</description>
+    </item>
+  </channel>
+</rss>

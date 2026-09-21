@@ -1,0 +1,115 @@
+
+# schools:
+#   - name: University of Georgia
+#     aliases: [UGA, Georgia]
+#     subreddits: [UGA]
+#     metadata:
+#       state: Georgia
+schools:
+  - name: University of Georgia
+    aliases: [UGA, Georgia]
+    subreddits: [UGA, universityofgeorgia]
+    newsletters:
+      - name: UGA Today
+        url: https://news.uga.edu/feed/
+    metadata:
+      state: Georgia
+  - name: University of Florida
+    aliases: [UF, Florida]
+    subreddits: [ufl, UniversityofFlorida]
+    newsletters:
+      - name: UF News
+        url: https://news.ufl.edu/
+    metadata:
+      state: Florida
+  - name: Vanderbilt University
+    aliases: [Vanderbilt, Vandy]
+    subreddits: [Vanderbilt]
+    newsletters:
+      - name: Vanderbilt News
+        url: https://news.vanderbilt.edu/feed/
+    metadata:
+      state: Tennessee
+  - name: University of Alabama
+    aliases: [Alabama, Bama, UA]
+    subreddits: [capstone]
+    newsletters:
+      - name: UA News Center
+        url: https://news.ua.edu/feed/
+    metadata:
+      state: Alabama
+  - name: University of Mississippi
+    aliases: [Ole Miss, Mississippi]
+    subreddits: [olemiss]
+    newsletters:
+      - name: Ole Miss News
+        url: https://news.olemiss.edu/
+    metadata:
+      state: Mississippi
+  - name: Georgia Institute of Technology
+    aliases: [Georgia Tech, GT, Georgia Institute of Technology]
+    subreddits: [gatech]
+    newsletters:
+      - name: Georgia Tech News
+        url: https://news.gatech.edu/rss.xml
+    metadata:
+      state: Georgia
+  - name: Emory University
+    aliases: [Emory]
+    subreddits: [Emory]
+    newsletters:
+      - name: Emory News
+        url: https://news.emory.edu/
+    metadata:
+      state: Georgia
+  - name: Georgia State University
+    aliases: [Georgia State, GSU]
+    subreddits: [GaState]
+    newsletters:
+      - name: Georgia State News Hub
+        url: https://news.gsu.edu/feed/
+    metadata:
+      state: Georgia
+  - name: Georgia Southern University
+    aliases: [Georgia Southern, GaSou]
+    subreddits: [GSU, georgiasouthern]
+    newsletters:
+      - name: Georgia Southern News
+        url: https://news.georgiasouthern.edu/
+    metadata:
+      state: Georgia
+
+# The sender must be a verified Resend address.
+email:
+  recipients:
+    - bradywilliams2029@gmail.com
+  # Address on your Resend receiving domain, e.g. research@inbound.example.org.
+  reply_to: ""
+  # Defaults to recipients when empty.
+  authorized_reply_senders: []
+  max_topics: 8
+  minimum_actionability_score: 3
+  maximum_attachment_bytes: 5000000
+  maximum_total_attachment_bytes: 10000000
+
+sources:
+  reddit:
+    enabled: true
+    include_top_level_comments: false
+    min_request_interval_seconds: 61
+    lookback_days: 30
+    feeds: [new, top_month]
+    max_pages: 2
+  usg_board:
+    enabled: true
+    archive_url: https://www.usg.edu/regents/meetings/date/{year}/
+    min_request_interval_seconds: 0.5
+    document_kinds: [agenda, minutes, notice, committee]
+  newsletters:
+    enabled: true
+    min_request_interval_seconds: 1
+    max_articles_per_feed: 25
+    fetch_article_body: true
+  yikyak:
+    enabled: false
+    provider: null

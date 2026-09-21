@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentsenate"
+version = "0.1.0"
+description = "Daily monitor for actionable higher-education initiatives"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "anthropic>=0.67,<1",
+  "beautifulsoup4>=4.13,<5",
+  "httpx>=0.28,<1",
+  "libsql>=0.1.11,<1",
+  "pydantic>=2.11,<3",
+  "pydantic-settings>=2.10,<3",
+  "pypdf>=6,<7",
+  "pyyaml>=6.0,<7",
+  "resend>=2.15,<3",
+  "tenacity>=9.1,<10",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.17,<2",
+  "pytest>=8.4,<9",
+  "pytest-cov>=6.2,<7",
+  "respx>=0.22,<1",
+  "ruff>=0.12,<1",
+  "types-pyyaml>=6.0.12",
+]
+
+[project.scripts]
+agentsenate = "agentsenate.cli:main"
+agentsenate-inbox = "agentsenate.gmail_cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentsenate"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["agentsenate"]

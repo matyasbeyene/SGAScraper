@@ -1,0 +1,73 @@
+name: Daily initiative monitor
+
+on:
+  schedule:
+    # Two UTC schedules plus the timezone guard keep this at 8 AM through US DST changes.
+    - cron: "0 12 * * *"
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Analyze and upload a preview without emailing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-initiative-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Eastern run hour
+        id: time
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "schedule" && "$(TZ=America/New_York date +%H)" != "08" ]]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.time.outputs.run == 'true'
+
+      - uses: astral-sh/setup-uv@v6
+        if: steps.time.outputs.run == 'true'
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install
+        if: steps.time.outputs.run == 'true'
+        run: uv sync --frozen
+
+      - name: Run monitor
+        if: steps.time.outputs.run == 'true'
+        env:
+          REDDIT_USER_AGENT: ${{ vars.REDDIT_USER_AGENT || 'agentsenate/0.1 (contact: bradywilliams2029@gmail.com)' }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-4-5' }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM: ${{ vars.RESEND_FROM }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: |
+          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+            uv run agentsenate --dry-run
+          else
+            uv run agentsenate
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: steps.time.outputs.run == 'true' && inputs.dry_run == true
+        with:
+          name: digest-preview
+          path: digest-preview.html
+          if-no-files-found: ignore

@@ -1,0 +1,20 @@
+{
+  "type": "email.received",
+  "created_at": "2026-09-16T14:00:00Z",
+  "data": {
+    "email_id": "received_123",
+    "created_at": "2026-09-16T14:00:00Z",
+    "from": "Student <student@example.edu>",
+    "to": ["research@inbound.example.edu"],
+    "message_id": "<reply-123@example.edu>",
+    "subject": "Re: Daily Initiative Monitor",
+    "attachments": [
+      {
+        "id": "attachment_123",
+        "filename": "yikyak.png",
+        "content_type": "image/png",
+        "size": 7
+      }
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>posts from /r/UGA</title>
+  <entry>
+    <author>
+      <name>/u/dawgfan</name>
+    </author>
+    <content type="html">&lt;p&gt;Could buses run until 2 AM?&lt;/p&gt;</content>
+    <id>https://www.reddit.com/r/UGA/comments/abc123/extend_late_night_buses/</id>
+    <link href="https://www.reddit.com/r/UGA/comments/abc123/extend_late_night_buses/"/>
+    <updated>2026-09-15T11:00:00+00:00</updated>
+    <title>Extend late-night buses</title>
+  </entry>
+  <entry>
+    <author>
+      <name>/u/oldpost</name>
+    </author>
+    <content type="html">&lt;p&gt;Old request&lt;/p&gt;</content>
+    <id>https://www.reddit.com/r/UGA/comments/old999/old_request/</id>
+    <link href="https://www.reddit.com/r/UGA/comments/old999/old_request/"/>
+    <updated>2026-09-14T08:00:00+00:00</updated>
+    <title>Old request</title>
+  </entry>
+</feed>
