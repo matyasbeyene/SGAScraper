@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from typing import Any, Protocol
 from uuid import UUID, uuid4
 
+import httpx
 import libsql  # type: ignore[import-untyped]
 
 from agentsenate.models import InitiativeAnalysis, SourceItem
@@ -246,6 +247,244 @@ class TursoStorage:
             (value, *external_ids),
         )
         self.connection.commit()
+
+
+class SupabaseRestStorage:
+    def __init__(
+        self,
+        supabase_url: str,
+        service_role_key: str,
+        client: httpx.Client | None = None,
+    ) -> None:
+        if not supabase_url or not service_role_key:
+            raise RuntimeError("Supabase URL and service role key are required")
+        self.base_url = supabase_url.rstrip("/") + "/rest/v1"
+        self.client = client or httpx.Client(timeout=30)
+        self.headers = {
+            "apikey": service_role_key,
+            "Authorization": f"Bearer {service_role_key}",
+        }
+
+    def has_successful_run(self) -> bool:
+        rows = self._request(
+            "GET",
+            "monitor_runs",
+            params={"select": "id", "status": "eq.success", "limit": "1"},
+        ).json()
+        return bool(rows)
+
+    def start_run(self, started_at: datetime) -> str:
+        run_id = str(uuid4())
+        self._request(
+            "POST",
+            "monitor_runs",
+            json={
+                "id": run_id,
+                "started_at": started_at.isoformat(),
+                "status": "running",
+                "details": {},
+            },
+            prefer="return=minimal",
+        )
+        return run_id
+
+    def finish_run(self, run_id: str, status: str, details: dict[str, Any]) -> None:
+        self._request(
+            "PATCH",
+            "monitor_runs",
+            params={"id": f"eq.{run_id}"},
+            json={
+                "status": status,
+                "details": details,
+                "finished_at": datetime.now(UTC).isoformat(),
+            },
+            prefer="return=minimal",
+        )
+
+    def store_items(self, items: list[SourceItem]) -> None:
+        if not items:
+            return
+        rows = []
+        for item in items:
+            rows.append(
+                {
+                    "source": item.source,
+                    "source_category": item.source_category.value,
+                    "external_id": item.external_id,
+                    "source_url": str(item.source_url),
+                    "observed_at": item.observed_at.isoformat(),
+                    "published_at": item.published_at.isoformat() if item.published_at else None,
+                    "university_name": item.university_name,
+                    "title": item.title,
+                    "author": item.author,
+                    "raw_text": item.raw_text,
+                    "document_id": item.document_id,
+                    "policy_status": item.policy_status,
+                    "financial_cost": item.financial_cost,
+                    "funding_source": item.funding_source,
+                    "metadata": item.metadata,
+                    "content_hash": item.content_hash,
+                }
+            )
+        self._request(
+            "POST",
+            "source_items",
+            params={"on_conflict": "source,external_id"},
+            json=rows,
+            prefer="resolution=ignore-duplicates,return=minimal",
+        )
+
+    def pending_items(self) -> list[SourceItem]:
+        rows = self._request(
+            "GET",
+            "source_items",
+            params={
+                "select": (
+                    "source,source_category,external_id,source_url,observed_at,published_at,"
+                    "university_name,title,author,raw_text,document_id,policy_status,"
+                    "financial_cost,funding_source,metadata,content_hash"
+                ),
+                "screened_at": "is.null",
+                "order": "observed_at.asc",
+            },
+        ).json()
+        return [SourceItem.model_validate(row) for row in rows]
+
+    def mark_baselined(self, external_ids: list[str], at: datetime) -> None:
+        self._update_ids({"screened_at": at.isoformat()}, external_ids)
+
+    def mark_screened(self, analyses: list[InitiativeAnalysis], at: datetime) -> None:
+        for analysis in analyses:
+            self._request(
+                "PATCH",
+                "source_items",
+                params={"external_id": f"eq.{analysis.external_id}"},
+                json={
+                    "screened_at": at.isoformat(),
+                    "analysis": analysis.model_dump(mode="json"),
+                },
+                prefer="return=minimal",
+            )
+
+    def mark_emailed(self, external_ids: list[str], at: datetime) -> None:
+        self._update_ids({"emailed_at": at.isoformat()}, external_ids)
+
+    def record_delivery(
+        self, idempotency_key: str, external_ids: list[str], provider_id: str, sent_at: datetime
+    ) -> None:
+        self._request(
+            "POST",
+            "digest_deliveries",
+            params={"on_conflict": "idempotency_key"},
+            json={
+                "idempotency_key": idempotency_key,
+                "external_ids": external_ids,
+                "provider_id": provider_id,
+                "sent_at": sent_at.isoformat(),
+            },
+            prefer="resolution=merge-duplicates,return=minimal",
+        )
+
+    def claim_inbound(
+        self,
+        email_id: str,
+        sender: str,
+        subject: str,
+        message_id: str,
+        received_at: datetime,
+        request_text: str,
+        attachments: list[dict[str, Any]],
+    ) -> bool:
+        response = self._request(
+            "POST",
+            "inbound_messages",
+            params={"on_conflict": "email_id"},
+            json={
+                "email_id": email_id,
+                "sender": sender,
+                "subject": subject,
+                "message_id": message_id,
+                "received_at": received_at.isoformat(),
+                "status": "processing",
+                "request_text": request_text,
+                "attachments": attachments,
+            },
+            prefer="resolution=ignore-duplicates,return=representation",
+        )
+        return bool(response.json())
+
+    def complete_inbound(self, email_id: str, result: dict[str, Any], delivery_id: str) -> None:
+        self._request(
+            "PATCH",
+            "inbound_messages",
+            params={"email_id": f"eq.{email_id}"},
+            json={
+                "status": "completed",
+                "result": result,
+                "delivery_id": delivery_id,
+                "updated_at": datetime.now(UTC).isoformat(),
+            },
+            prefer="return=minimal",
+        )
+
+    def fail_inbound(self, email_id: str, error: str) -> None:
+        self._request(
+            "PATCH",
+            "inbound_messages",
+            params={"email_id": f"eq.{email_id}"},
+            json={
+                "status": "failed",
+                "error": error[:2_000],
+                "updated_at": datetime.now(UTC).isoformat(),
+            },
+            prefer="return=minimal",
+        )
+
+    def recent_context(self, limit: int = 20) -> list[dict[str, Any]]:
+        return self._request(
+            "GET",
+            "source_items",
+            params={
+                "select": "university_name,title,source_url,analysis,observed_at",
+                "analysis": "not.is.null",
+                "order": "observed_at.desc",
+                "limit": str(limit),
+            },
+        ).json()
+
+    def _update_ids(self, values: dict[str, Any], external_ids: list[str]) -> None:
+        if not external_ids:
+            return
+        ids = ",".join(external_ids)
+        self._request(
+            "PATCH",
+            "source_items",
+            params={"external_id": f"in.({ids})"},
+            json=values,
+            prefer="return=minimal",
+        )
+
+    def _request(
+        self,
+        method: str,
+        table: str,
+        *,
+        params: dict[str, str] | None = None,
+        json: object | None = None,
+        prefer: str | None = None,
+    ) -> httpx.Response:
+        headers = dict(self.headers)
+        if prefer:
+            headers["Prefer"] = prefer
+        response = self.client.request(
+            method,
+            f"{self.base_url}/{table}",
+            params=params,
+            json=json,
+            headers=headers,
+        )
+        response.raise_for_status()
+        return response
 
 
 class MemoryStorage:

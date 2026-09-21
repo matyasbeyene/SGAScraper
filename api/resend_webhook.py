@@ -13,7 +13,7 @@ from agentsenate.inbound import (
     verify_resend_webhook,
 )
 from agentsenate.researcher import ClaudeResearcher
-from agentsenate.storage import TursoStorage
+from agentsenate.storage import SupabaseRestStorage, TursoStorage
 
 
 def build_service() -> InboundResearchService:
@@ -24,7 +24,11 @@ def build_service() -> InboundResearchService:
         raise RuntimeError("No authorized reply senders are configured")
     return InboundResearchService(
         gateway=ResendInboundGateway(secrets.resend_api_key),
-        storage=TursoStorage(secrets.turso_database_url, secrets.turso_auth_token),
+        storage=(
+            TursoStorage(secrets.turso_database_url, secrets.turso_auth_token)
+            if secrets.storage_backend == "turso"
+            else SupabaseRestStorage(secrets.supabase_url, secrets.supabase_service_role_key)
+        ),
         researcher=ClaudeResearcher(secrets.anthropic_api_key, secrets.anthropic_research_model),
         mailer=ResendResearchMailer(secrets.resend_api_key, secrets.resend_from),
         authorized_senders=authorized,

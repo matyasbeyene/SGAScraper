@@ -66,12 +66,18 @@ class FileConfig(BaseModel):
 class Secrets(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
+    storage_backend: str = "supabase"
     reddit_client_id: str = ""
     reddit_client_secret: str = ""
     reddit_user_agent: str = "agentsenate/0.1"
+    deepseek_api_key: str = ""
+    deepseek_model: str = "deepseek-flash"
+    deepseek_base_url: str = "https://api.deepseek.com"
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-4-5"
     anthropic_research_model: str = "claude-sonnet-4-6"
+    supabase_url: str = ""
+    supabase_service_role_key: str = ""
     turso_database_url: str = ""
     turso_auth_token: str = ""
     resend_api_key: str = ""

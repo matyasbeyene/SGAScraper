@@ -6,7 +6,7 @@ import logging
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from agentsenate.analyzer import ClaudeAnalyzer
+from agentsenate.analyzer import ClaudeAnalyzer, DeepSeekAnalyzer
 from agentsenate.config import FileConfig, Secrets, load_file_config
 from agentsenate.emailer import ResendMailer
 from agentsenate.gmail import GmailSender
@@ -18,7 +18,7 @@ from agentsenate.sources import (
     USGBoardSource,
     YikYakSource,
 )
-from agentsenate.storage import MemoryStorage, TursoStorage
+from agentsenate.storage import MemoryStorage, SupabaseRestStorage, TursoStorage
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -89,13 +89,9 @@ def main() -> None:
     storage = (
         MemoryStorage(previously_ran=True)
         if args.dry_run
-        else TursoStorage(secrets.turso_database_url, secrets.turso_auth_token)
+        else _build_storage(secrets)
     )
-    analyzer = ClaudeAnalyzer(
-        secrets.anthropic_api_key,
-        secrets.anthropic_model,
-        max_topics=config.email.max_topics,
-    )
+    analyzer = _build_analyzer(secrets, config.email.max_topics)
     mailer: Mailer | None
     if args.dry_run:
         mailer = None
@@ -127,6 +123,29 @@ def main() -> None:
         preview_writer=preview_writer,
     ).run()
     print(json.dumps(result, indent=2, default=str))
+
+
+def _build_storage(secrets: Secrets) -> TursoStorage | SupabaseRestStorage:
+    if secrets.storage_backend == "turso":
+        return TursoStorage(secrets.turso_database_url, secrets.turso_auth_token)
+    if secrets.storage_backend == "supabase":
+        return SupabaseRestStorage(secrets.supabase_url, secrets.supabase_service_role_key)
+    raise RuntimeError("STORAGE_BACKEND must be 'supabase' or 'turso'")
+
+
+def _build_analyzer(secrets: Secrets, max_topics: int) -> ClaudeAnalyzer | DeepSeekAnalyzer:
+    if secrets.deepseek_api_key:
+        return DeepSeekAnalyzer(
+            api_key=secrets.deepseek_api_key,
+            model=secrets.deepseek_model,
+            base_url=secrets.deepseek_base_url,
+            max_topics=max_topics,
+        )
+    return ClaudeAnalyzer(
+        secrets.anthropic_api_key,
+        secrets.anthropic_model,
+        max_topics=max_topics,
+    )
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ from agentsenate.config import Secrets, load_file_config
 from agentsenate.gmail import GmailInboxPoller, GmailSender, gmail_reply_alias
 from agentsenate.inbound import InboundGateway, InboundResearchService
 from agentsenate.researcher import ClaudeResearcher
-from agentsenate.storage import TursoStorage
+from agentsenate.storage import SupabaseRestStorage, TursoStorage
 
 
 def main() -> None:
@@ -19,7 +19,11 @@ def main() -> None:
     )
     if not secrets.gmail_address or not secrets.gmail_app_password:
         raise RuntimeError("GMAIL_ADDRESS and GMAIL_APP_PASSWORD are required")
-    storage = TursoStorage(secrets.turso_database_url, secrets.turso_auth_token)
+    storage = (
+        TursoStorage(secrets.turso_database_url, secrets.turso_auth_token)
+        if secrets.storage_backend == "turso"
+        else SupabaseRestStorage(secrets.supabase_url, secrets.supabase_service_role_key)
+    )
     researcher = ClaudeResearcher(secrets.anthropic_api_key, secrets.anthropic_research_model)
     mailer = GmailSender(secrets.gmail_address, secrets.gmail_app_password)
     authorized = config.email.authorized_reply_senders or config.email.recipients

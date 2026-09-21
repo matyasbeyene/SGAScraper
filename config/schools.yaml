@@ -1,91 +1,227 @@
-
-# schools:
-#   - name: University of Georgia
-#     aliases: [UGA, Georgia]
-#     subreddits: [UGA]
-#     metadata:
-#       state: Georgia
 schools:
   - name: University of Georgia
     aliases: [UGA, Georgia]
-    subreddits: [UGA, universityofgeorgia]
+    subreddits: [UGA, universityofgeorgia, Athens]
     newsletters:
       - name: UGA Today
         url: https://news.uga.edu/feed/
     metadata:
+      conference: SEC
       state: Georgia
-  - name: University of Florida
-    aliases: [UF, Florida]
-    subreddits: [ufl, UniversityofFlorida]
-    newsletters:
-      - name: UF News
-        url: https://news.ufl.edu/
-    metadata:
-      state: Florida
-  - name: Vanderbilt University
-    aliases: [Vanderbilt, Vandy]
-    subreddits: [Vanderbilt]
-    newsletters:
-      - name: Vanderbilt News
-        url: https://news.vanderbilt.edu/feed/
-    metadata:
-      state: Tennessee
+
   - name: University of Alabama
     aliases: [Alabama, Bama, UA]
-    subreddits: [capstone]
+    subreddits: [capstone, rolltide]
     newsletters:
       - name: UA News Center
         url: https://news.ua.edu/feed/
     metadata:
+      conference: SEC
       state: Alabama
+  - name: University of Arkansas
+    aliases: [Arkansas, UARK]
+    subreddits: [uark, Arkansas]
+    newsletters:
+      - name: Arkansas News
+        url: https://news.uark.edu/rss/articles
+    metadata:
+      conference: SEC
+      state: Arkansas
+  - name: Auburn University
+    aliases: [Auburn]
+    subreddits: [auburn, auburntigers]
+    newsletters:
+      - name: Auburn News
+        url: https://wire.auburn.edu/rss
+    metadata:
+      conference: SEC
+      state: Alabama
+  - name: University of Florida
+    aliases: [UF, Florida]
+    subreddits: [ufl, UniversityofFlorida, Gainesville]
+    newsletters:
+      - name: UF News
+        url: https://news.ufl.edu/
+    metadata:
+      conference: SEC
+      state: Florida
+  - name: University of Kentucky
+    aliases: [Kentucky, UK]
+    subreddits: [UniversityofKentucky, lexington]
+    newsletters:
+      - name: UKNow
+        url: https://uknow.uky.edu/rss.xml
+    metadata:
+      conference: SEC
+      state: Kentucky
+  - name: Louisiana State University
+    aliases: [LSU]
+    subreddits: [LSU, batonrouge]
+    newsletters:
+      - name: LSU Media Center
+        url: https://www.lsu.edu/mediacenter/news/index.php
+    metadata:
+      conference: SEC
+      state: Louisiana
   - name: University of Mississippi
     aliases: [Ole Miss, Mississippi]
-    subreddits: [olemiss]
+    subreddits: [olemiss, OxfordMS]
     newsletters:
       - name: Ole Miss News
         url: https://news.olemiss.edu/
     metadata:
+      conference: SEC
       state: Mississippi
-  - name: Georgia Institute of Technology
-    aliases: [Georgia Tech, GT, Georgia Institute of Technology]
-    subreddits: [gatech]
+  - name: Mississippi State University
+    aliases: [Mississippi State, MSU]
+    subreddits: [msstate, MississippiState]
     newsletters:
-      - name: Georgia Tech News
-        url: https://news.gatech.edu/rss.xml
+      - name: Mississippi State Newsroom
+        url: https://www.msstate.edu/newsroom/rss.xml
     metadata:
-      state: Georgia
-  - name: Emory University
-    aliases: [Emory]
-    subreddits: [Emory]
+      conference: SEC
+      state: Mississippi
+  - name: University of Missouri
+    aliases: [Missouri, Mizzou]
+    subreddits: [mizzou, columbiamo]
     newsletters:
-      - name: Emory News
-        url: https://news.emory.edu/
+      - name: Mizzou News
+        url: https://showme.missouri.edu/feed/
     metadata:
-      state: Georgia
-  - name: Georgia State University
-    aliases: [Georgia State, GSU]
-    subreddits: [GaState]
+      conference: SEC
+      state: Missouri
+  - name: University of Oklahoma
+    aliases: [Oklahoma, OU]
+    subreddits: [sooners, normanok]
     newsletters:
-      - name: Georgia State News Hub
-        url: https://news.gsu.edu/feed/
+      - name: OU News
+        url: https://www.ou.edu/news
     metadata:
-      state: Georgia
-  - name: Georgia Southern University
-    aliases: [Georgia Southern, GaSou]
-    subreddits: [GSU, georgiasouthern]
+      conference: SEC
+      state: Oklahoma
+  - name: University of South Carolina
+    aliases: [South Carolina, UofSC, USC]
+    subreddits: [UofSC, Gamecocks, ColumbiaSC]
     newsletters:
-      - name: Georgia Southern News
-        url: https://news.georgiasouthern.edu/
+      - name: UofSC News
+        url: https://sc.edu/uofsc/index.php
     metadata:
-      state: Georgia
+      conference: SEC
+      state: South Carolina
+  - name: University of Tennessee, Knoxville
+    aliases: [Tennessee, UTK]
+    subreddits: [UTK, ockytop, Knoxville]
+    newsletters:
+      - name: Tennessee Today
+        url: https://news.utk.edu/feed/
+    metadata:
+      conference: SEC
+      state: Tennessee
+  - name: University of Texas at Austin
+    aliases: [Texas, UT Austin]
+    subreddits: [UTAustin, LonghornNation, Austin]
+    newsletters:
+      - name: UT News
+        url: https://news.utexas.edu/feed/
+    metadata:
+      conference: SEC
+      state: Texas
+  - name: Texas A&M University
+    aliases: [Texas A&M, TAMU]
+    subreddits: [aggies, tamu, CollegeStation]
+    newsletters:
+      - name: Texas A&M Today
+        url: https://today.tamu.edu/feed/
+    metadata:
+      conference: SEC
+      state: Texas
+  - name: Vanderbilt University
+    aliases: [Vanderbilt, Vandy]
+    subreddits: [Vanderbilt, nashville]
+    newsletters:
+      - name: Vanderbilt News
+        url: https://news.vanderbilt.edu/feed/
+    metadata:
+      conference: SEC
+      state: Tennessee
 
-# The sender must be a verified Resend address.
+  - name: Brown University
+    aliases: [Brown]
+    subreddits: [BrownU, providence]
+    newsletters:
+      - name: Brown News
+        url: https://www.brown.edu/news/rss
+    metadata:
+      conference: Ivy League
+      state: Rhode Island
+  - name: Columbia University
+    aliases: [Columbia]
+    subreddits: [columbia, columbiauni, nyc]
+    newsletters:
+      - name: Columbia News
+        url: https://news.columbia.edu/rss.xml
+    metadata:
+      conference: Ivy League
+      state: New York
+  - name: Cornell University
+    aliases: [Cornell]
+    subreddits: [Cornell, ithaca]
+    newsletters:
+      - name: Cornell Chronicle
+        url: https://news.cornell.edu/categories/rss.xml
+    metadata:
+      conference: Ivy League
+      state: New York
+  - name: Dartmouth College
+    aliases: [Dartmouth]
+    subreddits: [dartmouth, hanover]
+    newsletters:
+      - name: Dartmouth News
+        url: https://home.dartmouth.edu/news
+    metadata:
+      conference: Ivy League
+      state: New Hampshire
+  - name: Harvard University
+    aliases: [Harvard]
+    subreddits: [Harvard, cambridgema]
+    newsletters:
+      - name: Harvard Gazette
+        url: https://news.harvard.edu/gazette/feed/
+    metadata:
+      conference: Ivy League
+      state: Massachusetts
+  - name: University of Pennsylvania
+    aliases: [Penn, UPenn]
+    subreddits: [UPenn, philadelphia]
+    newsletters:
+      - name: Penn Today
+        url: https://penntoday.upenn.edu/feed
+    metadata:
+      conference: Ivy League
+      state: Pennsylvania
+  - name: Princeton University
+    aliases: [Princeton]
+    subreddits: [princeton, princetonNJ]
+    newsletters:
+      - name: Princeton News
+        url: https://www.princeton.edu/news/rss.xml
+    metadata:
+      conference: Ivy League
+      state: New Jersey
+  - name: Yale University
+    aliases: [Yale]
+    subreddits: [yale, newhaven]
+    newsletters:
+      - name: Yale News
+        url: https://news.yale.edu/rss.xml
+    metadata:
+      conference: Ivy League
+      state: Connecticut
+
 email:
   recipients:
-    - bradywilliams2029@gmail.com
-  # Address on your Resend receiving domain, e.g. research@inbound.example.org.
+    - mkb59906@uga.edu
   reply_to: ""
-  # Defaults to recipients when empty.
   authorized_reply_senders: []
   max_topics: 8
   minimum_actionability_score: 3
@@ -96,10 +232,10 @@ sources:
   reddit:
     enabled: true
     include_top_level_comments: false
-    min_request_interval_seconds: 61
-    lookback_days: 30
-    feeds: [new, top_month]
-    max_pages: 2
+    min_request_interval_seconds: 2
+    lookback_days: 7
+    feeds: [new]
+    max_pages: 1
   usg_board:
     enabled: true
     archive_url: https://www.usg.edu/regents/meetings/date/{year}/
@@ -108,7 +244,7 @@ sources:
   newsletters:
     enabled: true
     min_request_interval_seconds: 1
-    max_articles_per_feed: 25
+    max_articles_per_feed: 10
     fetch_article_body: true
   yikyak:
     enabled: false

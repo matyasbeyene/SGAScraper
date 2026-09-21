@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 
+import httpx
 from anthropic import Anthropic
 from anthropic.types import TextBlock
 
@@ -119,6 +120,91 @@ class ClaudeAnalyzer:
         return selected[: self.max_topics]
 
 
+class DeepSeekAnalyzer:
+    def __init__(
+        self,
+        api_key: str,
+        model: str = "deepseek-flash",
+        base_url: str = "https://api.deepseek.com",
+        max_topics: int = 8,
+        max_cost_usd: float = 0.05,
+        client: httpx.Client | None = None,
+    ) -> None:
+        if not api_key:
+            raise RuntimeError("DeepSeek API key is required")
+        self.api_key = api_key
+        self.model = model
+        self.base_url = base_url.rstrip("/")
+        self.max_topics = max_topics
+        self.max_cost_usd = max_cost_usd
+        self.client = client or httpx.Client(timeout=60)
+        self.spent_usd = 0.0
+        self.api_calls = 0
+
+    def analyze(self, items: list[SourceItem]) -> list[InitiativeAnalysis]:
+        if not items:
+            return []
+        if self.api_calls:
+            raise CostCapExceeded("DeepSeek already wrote the brief; refusing another API call")
+        corpus = compact_items(items)
+        user_content = _brief_prompt(self.max_topics, corpus)
+        while len(corpus) > 1 and _deepseek_prompt_cost(user_content) > self.max_cost_usd:
+            corpus = corpus[: max(1, len(corpus) * 3 // 4)]
+            user_content = _brief_prompt(self.max_topics, corpus)
+            logger.warning(
+                "Shrunk corpus to %s items to stay under $%.2f",
+                len(corpus),
+                self.max_cost_usd,
+            )
+        estimated = _deepseek_prompt_cost(user_content)
+        if estimated > self.max_cost_usd:
+            raise CostCapExceeded(
+                f"One DeepSeek brief would cost about ${estimated:.4f}, "
+                f"over the ${self.max_cost_usd:.2f} cap"
+            )
+        logger.info(
+            "Aggregated %s/%s items; one DeepSeek brief, estimated $%.4f",
+            len(corpus),
+            len(items),
+            estimated,
+        )
+        response = self.client.post(
+            f"{self.base_url}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": self.model,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_content},
+                ],
+                "temperature": 0,
+                "max_tokens": MAX_OUTPUT_TOKENS,
+                "response_format": {"type": "json_object"},
+            },
+        )
+        response.raise_for_status()
+        self.api_calls += 1
+        payload = response.json()
+        actual = _deepseek_usage_cost(payload)
+        self.spent_usd += actual
+        logger.info("DeepSeek brief spent about $%.4f (cap $%.2f)", actual, self.max_cost_usd)
+        text = str(payload["choices"][0]["message"]["content"])
+        parsed = AnalysisBatch.model_validate_json(_strip_code_fence(text))
+        known = {item.external_id for item in items}
+        selected = [
+            analysis
+            for analysis in parsed.initiatives
+            if analysis.external_id in known and analysis.is_useful
+        ]
+        dropped = len(parsed.initiatives) - len(selected)
+        if dropped:
+            logger.warning("Dropped %s DeepSeek initiatives with unknown IDs or not useful", dropped)
+        return selected[: self.max_topics]
+
+
 def compact_items(
     items: list[SourceItem], max_chars: int = MAX_CORPUS_CHARS
 ) -> list[dict[str, str | None]]:
@@ -163,6 +249,10 @@ def estimate_cost_usd(input_tokens: int, output_tokens: int) -> float:
     ) * OUTPUT_USD_PER_MTOK
 
 
+def estimate_deepseek_flash_cost_usd(input_tokens: int, output_tokens: int) -> float:
+    return (input_tokens / 1_000_000) * 0.30 + (output_tokens / 1_000_000) * 1.20
+
+
 def _brief_prompt(max_topics: int, corpus: list[dict[str, str | None]]) -> str:
     return (
         f"Select up to {max_topics} initiatives for today's brief "
@@ -176,6 +266,11 @@ def _prompt_cost(user_content: str) -> float:
     return estimate_cost_usd(input_tokens, MAX_OUTPUT_TOKENS)
 
 
+def _deepseek_prompt_cost(user_content: str) -> float:
+    input_tokens = _estimate_tokens(SYSTEM_PROMPT) + _estimate_tokens(user_content)
+    return estimate_deepseek_flash_cost_usd(input_tokens, MAX_OUTPUT_TOKENS)
+
+
 def _estimate_tokens(text: str) -> int:
     return max(1, (len(text) + CHARS_PER_TOKEN - 1) // CHARS_PER_TOKEN)
 
@@ -187,6 +282,17 @@ def _usage_cost(message: object) -> float:
     if not input_tokens and not output_tokens:
         return 0.0
     return estimate_cost_usd(input_tokens, output_tokens)
+
+
+def _deepseek_usage_cost(payload: dict[str, object]) -> float:
+    usage = payload.get("usage")
+    if not isinstance(usage, dict):
+        return 0.0
+    input_tokens = int(usage.get("prompt_tokens") or 0)
+    output_tokens = int(usage.get("completion_tokens") or 0)
+    if not input_tokens and not output_tokens:
+        return 0.0
+    return estimate_deepseek_flash_cost_usd(input_tokens, output_tokens)
 
 
 def _snippet(text: str, limit: int) -> str:

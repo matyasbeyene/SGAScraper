@@ -12,7 +12,6 @@ import resend
 from bs4 import BeautifulSoup
 
 from agentsenate.models import InboundImage, ResearchResult
-from agentsenate.storage import TursoStorage
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
@@ -54,6 +53,27 @@ class ResearchMailer(Protocol):
         references: str,
         idempotency_key: str,
     ) -> str: ...
+
+
+class InboundStorage(Protocol):
+    def claim_inbound(
+        self,
+        email_id: str,
+        sender: str,
+        subject: str,
+        message_id: str,
+        received_at: datetime,
+        request_text: str,
+        attachments: list[dict[str, Any]],
+    ) -> bool: ...
+
+    def complete_inbound(
+        self, email_id: str, result: dict[str, Any], delivery_id: str
+    ) -> None: ...
+
+    def fail_inbound(self, email_id: str, error: str) -> None: ...
+
+    def recent_context(self, limit: int = 20) -> list[dict[str, Any]]: ...
 
 
 class InboundGateway(Protocol):
@@ -101,7 +121,7 @@ class InboundResearchService:
     def __init__(
         self,
         gateway: InboundGateway,
-        storage: TursoStorage,
+        storage: InboundStorage,
         researcher: Researcher,
         mailer: ResearchMailer,
         authorized_senders: list[str],
