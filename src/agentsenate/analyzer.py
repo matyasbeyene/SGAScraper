@@ -120,6 +120,71 @@ class ClaudeAnalyzer:
         return selected[: self.max_topics]
 
 
+def fallback_analyses(items: list[SourceItem], max_topics: int) -> list[InitiativeAnalysis]:
+    scored = sorted(
+        items,
+        key=lambda item: (_fallback_score(item), item.published_at or item.observed_at),
+        reverse=True,
+    )
+    analyses: list[InitiativeAnalysis] = []
+    for item in scored:
+        score = _fallback_score(item)
+        if score < 3:
+            continue
+        analyses.append(
+            InitiativeAnalysis(
+                external_id=item.external_id,
+                is_useful=True,
+                topic_tags=_fallback_tags(item),
+                impact_classification="Operational/Actionable",
+                target_stakeholder="Relevant campus administrator",
+                executive_summary=_fallback_summary(item),
+                actionability_score=score,
+                evidence=_snippet(item.raw_text or item.title, 180),
+                ranking_rationale="Selected by fallback keyword scoring after model JSON failed.",
+            )
+        )
+        if len(analyses) >= max_topics:
+            break
+    return analyses
+
+
+def _fallback_score(item: SourceItem) -> int:
+    text = f"{item.title} {item.raw_text}".lower()
+    strong = ("parking", "dining", "housing", "safety", "bus", "tuition", "fee")
+    useful = ("library", "wifi", "registration", "advising", "class", "meal", "transit")
+    score = 1
+    if any(word in text for word in strong):
+        score += 3
+    if any(word in text for word in useful):
+        score += 2
+    if "?" in item.title or "why" in text or "how" in text:
+        score += 1
+    return max(1, min(5, score))
+
+
+def _fallback_tags(item: SourceItem) -> list[str]:
+    text = f"{item.title} {item.raw_text}".lower()
+    tags = []
+    for tag, words in (
+        ("Parking/Transit", ("parking", "bus", "transit")),
+        ("Dining", ("dining", "meal", "food")),
+        ("Housing", ("housing", "dorm", "apartment")),
+        ("Academic Services", ("library", "registration", "advising", "class")),
+        ("Safety", ("safety", "police", "security")),
+        ("Student Costs", ("tuition", "fee", "fees", "cost")),
+    ):
+        if any(word in text for word in words):
+            tags.append(tag)
+    return tags or ["Student Sentiment"]
+
+
+def _fallback_summary(item: SourceItem) -> str:
+    school = item.university_name or "The monitored campus"
+    body = _snippet(item.raw_text, 140) if item.raw_text else item.title
+    return f"{school} discussion flagged a possible student-government issue: {body}"
+
+
 class DeepSeekAnalyzer:
     def __init__(
         self,
@@ -196,7 +261,11 @@ class DeepSeekAnalyzer:
         if not text.strip():
             logger.warning("DeepSeek returned an empty brief; treating it as no selections")
             return []
-        parsed = AnalysisBatch.model_validate_json(_strip_code_fence(text))
+        try:
+            parsed = AnalysisBatch.model_validate_json(_strip_code_fence(text))
+        except Exception as exc:
+            logger.warning("DeepSeek returned invalid JSON; using fallback analysis: %s", exc)
+            return fallback_analyses(items, self.max_topics)
         known = {item.external_id for item in items}
         selected = [
             analysis
