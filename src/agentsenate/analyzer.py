@@ -201,7 +201,9 @@ class DeepSeekAnalyzer:
         ]
         dropped = len(parsed.initiatives) - len(selected)
         if dropped:
-            logger.warning("Dropped %s DeepSeek initiatives with unknown IDs or not useful", dropped)
+            logger.warning(
+                "Dropped %s DeepSeek initiatives with unknown IDs or not useful", dropped
+            )
         return selected[: self.max_topics]
 
 
