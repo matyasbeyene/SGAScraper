@@ -50,7 +50,7 @@ jobs:
       - name: Run monitor
         if: steps.time.outputs.run == 'true'
         env:
-          REDDIT_USER_AGENT: agentsenate/0.1 (contact: matyasbeyene@gmail.com)
+          REDDIT_USER_AGENT: "agentsenate/0.1 (contact: matyasbeyene@gmail.com)"
           STORAGE_BACKEND: supabase
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DEEPSEEK_MODEL: deepseek-flash
