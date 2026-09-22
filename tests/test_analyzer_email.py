@@ -3,9 +3,17 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime
 
+import httpx
+import pytest
 from anthropic.types import TextBlock
 
-from agentsenate.analyzer import ClaudeAnalyzer, CostCapExceeded, _strip_code_fence, compact_items
+from agentsenate.analyzer import (
+    ClaudeAnalyzer,
+    CostCapExceeded,
+    DeepSeekAnalyzer,
+    _strip_code_fence,
+    compact_items,
+)
 from agentsenate.emailer import ResendResearchMailer, render_digest, select_topics
 from agentsenate.models import (
     InitiativeAnalysis,
@@ -175,6 +183,52 @@ def test_cost_cap_blocks_api_call(source_item: SourceItem) -> None:
     else:
         raise AssertionError("expected CostCapExceeded")
     assert calls == 0
+
+
+def test_compact_items_includes_other_schools_before_repeats(source_item: SourceItem) -> None:
+    other_school = source_item.model_copy(
+        update={"external_id": "other_school", "university_name": "Other University"}
+    )
+    repeat = source_item.model_copy(update={"external_id": "same_school"})
+    corpus = compact_items([source_item, repeat, other_school])
+    assert [row["external_id"] for row in corpus] == [
+        source_item.external_id,
+        "other_school",
+        "same_school",
+    ]
+
+
+def test_deepseek_validates_json_and_filters_unknown_ids(source_item: SourceItem) -> None:
+    def respond(request: httpx.Request) -> httpx.Response:
+        body = json.loads(request.content)
+        assert body["response_format"] == {"type": "json_object"}
+        assert body["thinking"] == {"type": "disabled"}
+        content = json.dumps(
+            {
+                "initiatives": [
+                    analysis(source_item.external_id, 5).model_dump(),
+                    analysis("invented", 5).model_dump(),
+                ]
+            }
+        )
+        return httpx.Response(200, json={"choices": [{"message": {"content": content}}]})
+
+    analyzer = DeepSeekAnalyzer(
+        "test-key", client=httpx.Client(transport=httpx.MockTransport(respond))
+    )
+    assert [item.external_id for item in analyzer.analyze([source_item])] == [
+        source_item.external_id
+    ]
+
+
+def test_empty_deepseek_response_is_retryable(source_item: SourceItem) -> None:
+    client = httpx.Client(
+        transport=httpx.MockTransport(
+            lambda request: httpx.Response(200, json={"choices": [{"message": {"content": ""}}]})
+        )
+    )
+    with pytest.raises(RuntimeError, match="leaving items pending"):
+        DeepSeekAnalyzer("test-key", client=client).analyze([source_item])
 
 
 def test_research_reply_sets_thread_headers(monkeypatch: object) -> None:

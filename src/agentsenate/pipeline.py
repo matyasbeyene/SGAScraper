@@ -33,6 +33,7 @@ class Pipeline:
         maximum_topics: int,
         lookback: timedelta | None = None,
         preview_writer: Callable[[str], None] | None = None,
+        send_initial_digest: bool = False,
     ) -> None:
         self.sources = sources
         self.storage = storage
@@ -42,6 +43,7 @@ class Pipeline:
         self.maximum_topics = maximum_topics
         self.lookback = lookback or timedelta(hours=26)
         self.preview_writer = preview_writer
+        self.send_initial_digest = send_initial_digest
 
     def run(self, now: datetime | None = None) -> dict[str, object]:
         now = now or datetime.now(UTC)
@@ -58,7 +60,7 @@ class Pipeline:
             self.storage.store_items(fetched)
             pending = self.storage.pending_items()
 
-            if not self.storage.has_successful_run():
+            if not self.storage.has_successful_run() and not self.send_initial_digest:
                 self.storage.mark_baselined([item.external_id for item in pending], now)
                 details: dict[str, object] = {
                     "bootstrap": True,

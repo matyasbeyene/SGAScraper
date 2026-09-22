@@ -335,20 +335,26 @@ class SupabaseRestStorage:
         )
 
     def pending_items(self) -> list[SourceItem]:
-        rows = self._request(
-            "GET",
-            "source_items",
-            params={
-                "select": (
-                    "source,source_category,external_id,source_url,observed_at,published_at,"
-                    "university_name,title,author,raw_text,document_id,policy_status,"
-                    "financial_cost,funding_source,metadata,content_hash"
-                ),
-                "screened_at": "is.null",
-                "order": "observed_at.asc",
-            },
-        ).json()
-        return [SourceItem.model_validate(row) for row in rows]
+        items: list[SourceItem] = []
+        while True:
+            rows = self._request(
+                "GET",
+                "source_items",
+                params={
+                    "select": (
+                        "source,source_category,external_id,source_url,observed_at,published_at,"
+                        "university_name,title,author,raw_text,document_id,policy_status,"
+                        "financial_cost,funding_source,metadata,content_hash"
+                    ),
+                    "screened_at": "is.null",
+                    "order": "observed_at.asc,source.asc,external_id.asc",
+                    "limit": "500",
+                    "offset": str(len(items)),
+                },
+            ).json()
+            if not rows:
+                return items
+            items.extend(SourceItem.model_validate(row) for row in rows)
 
     def mark_baselined(self, external_ids: list[str], at: datetime) -> None:
         self._update_ids({"screened_at": at.isoformat()}, external_ids)
@@ -456,16 +462,15 @@ class SupabaseRestStorage:
         return [row for row in rows if isinstance(row, dict)]
 
     def _update_ids(self, values: dict[str, Any], external_ids: list[str]) -> None:
-        if not external_ids:
-            return
-        ids = ",".join(external_ids)
-        self._request(
-            "PATCH",
-            "source_items",
-            params={"external_id": f"in.({ids})"},
-            json=values,
-            prefer="return=minimal",
-        )
+        for start in range(0, len(external_ids), 50):
+            ids = ",".join(json.dumps(value) for value in external_ids[start : start + 50])
+            self._request(
+                "PATCH",
+                "source_items",
+                params={"external_id": f"in.({ids})"},
+                json=values,
+                prefer="return=minimal",
+            )
 
     def _request(
         self,

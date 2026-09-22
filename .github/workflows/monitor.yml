@@ -12,6 +12,10 @@ on:
         description: "Send email instead of dry-running"
         required: false
         default: "false"
+      send_initial_digest:
+        description: "Include the first collection in the digest (requires send_email)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -23,12 +27,20 @@ concurrency:
 jobs:
   monitor:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - name: Check Eastern run hour
+      - name: Select Eastern morning schedule
         id: time
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
         run: |
-          if [[ "${{ github.event_name }}" == "schedule" && "$(TZ=America/New_York date +%H)" != "08" ]]; then
+          expected="0 13 * * *"
+          if [[ "$(TZ=America/New_York date +%z)" == "-0400" ]]; then
+            expected="0 12 * * *"
+          fi
+          if [[ "$EVENT_NAME" == "schedule" && "$SCHEDULE" != "$expected" ]]; then
             echo "run=false" >> "$GITHUB_OUTPUT"
           else
             echo "run=true" >> "$GITHUB_OUTPUT"
@@ -58,14 +70,19 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          AGENTSENATE_CONFIG: config/smoke.yaml
+          AGENTSENATE_CONFIG: ${{ github.event_name == 'push' && 'config/smoke.yaml' || 'config/schools.yaml' }}
+          SEND_INITIAL_DIGEST: ${{ inputs.send_initial_digest }}
         run: |
           if [[ "${{ github.event_name }}" == "push" ]]; then
             uv run agentsenate --dry-run
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.send_email }}" != "true" ]]; then
             uv run agentsenate --dry-run
           else
-            uv run agentsenate
+            args=()
+            if [[ "$SEND_INITIAL_DIGEST" == "true" ]]; then
+              args+=(--send-initial-digest)
+            fi
+            uv run agentsenate "${args[@]}"
           fi
 
       - uses: actions/upload-artifact@v4

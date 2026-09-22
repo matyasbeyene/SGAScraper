@@ -3,8 +3,10 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 
+import httpx
+
 from agentsenate.models import InitiativeAnalysis, SourceItem
-from agentsenate.storage import TursoStorage
+from agentsenate.storage import SupabaseRestStorage, TursoStorage
 
 
 def test_turso_storage_lifecycle(source_item: SourceItem) -> None:
@@ -42,3 +44,43 @@ def test_turso_storage_lifecycle(source_item: SourceItem) -> None:
         ("digest-key",),
     ).fetchone()
     assert delivery == ("email-id",)
+
+
+def test_supabase_reads_all_pages_even_when_server_caps_page_size(source_item: SourceItem) -> None:
+    rows = [
+        source_item.model_copy(update={"external_id": f"item_{i}"}).model_dump(mode="json")
+        for i in range(5)
+    ]
+    offsets: list[int] = []
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        offset = int(request.url.params["offset"])
+        offsets.append(offset)
+        return httpx.Response(200, json=rows[offset : offset + 2])
+
+    storage = SupabaseRestStorage(
+        "https://example.supabase.co",
+        "test-key",
+        client=httpx.Client(transport=httpx.MockTransport(respond)),
+    )
+    assert len(storage.pending_items()) == 5
+    assert offsets == [0, 2, 4, 5]
+
+
+def test_supabase_batches_large_id_updates() -> None:
+    filters: list[str] = []
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        assert request.method == "PATCH"
+        filters.append(request.url.params["external_id"])
+        assert len(str(request.url)) < 8000
+        return httpx.Response(204)
+
+    storage = SupabaseRestStorage(
+        "https://example.supabase.co",
+        "test-key",
+        client=httpx.Client(transport=httpx.MockTransport(respond)),
+    )
+    storage.mark_baselined([f"{i:064x}" for i in range(101)], datetime.now(UTC))
+    assert len(filters) == 3
+    assert f"{100:064x}" in filters[-1]

@@ -93,3 +93,20 @@ def test_unselected_items_are_not_left_pending(source_item: SourceItem) -> None:
     ).run(datetime(2026, 9, 15, 12, tzinfo=UTC))
     assert result["sent"] is True
     assert storage.pending_items() == []
+
+
+def test_initial_digest_opt_in_sends_once(source_item: SourceItem) -> None:
+    storage = MemoryStorage(previously_ran=False)
+    mailer = RecordingMailer()
+    pipeline = Pipeline(
+        sources={"reddit": StaticSource(source_item)},
+        storage=storage,
+        analyzer=StaticAnalyzer(),
+        mailer=mailer,
+        minimum_score=3,
+        maximum_topics=8,
+        send_initial_digest=True,
+    )
+    assert pipeline.run(datetime(2026, 9, 15, 12, tzinfo=UTC))["sent"] is True
+    assert pipeline.run(datetime(2026, 9, 15, 13, tzinfo=UTC))["sent"] is False
+    assert mailer.calls == 1

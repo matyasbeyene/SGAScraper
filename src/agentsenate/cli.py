@@ -29,6 +29,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Use in-memory state and write digest-preview.html instead of sending email",
     )
     parser.add_argument(
+        "--send-initial-digest",
+        action="store_true",
+        help="Analyze and email the first collection instead of only creating a baseline",
+    )
+    parser.add_argument(
         "--preview",
         type=Path,
         default=Path("digest-preview.html"),
@@ -117,6 +122,7 @@ def main() -> None:
         maximum_topics=config.email.max_topics,
         lookback=lookback,
         preview_writer=preview_writer,
+        send_initial_digest=args.send_initial_digest,
     ).run()
     print(json.dumps(result, indent=2, default=str))
 

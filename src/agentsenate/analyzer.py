@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import logging
+from collections import defaultdict
+from itertools import zip_longest
 
 import httpx
 from anthropic import Anthropic
@@ -36,6 +38,7 @@ FORUM_SNIPPET = 280
 BOARD_SNIPPET = 700
 MAX_CORPUS_CHARS = 24_000
 MAX_OUTPUT_TOKENS = 1_200
+DEEPSEEK_MAX_OUTPUT_TOKENS = 4_000
 MAX_COST_USD = 0.20
 INPUT_USD_PER_MTOK = 3.0
 OUTPUT_USD_PER_MTOK = 15.0
@@ -248,7 +251,8 @@ class DeepSeekAnalyzer:
                 "thinking": {"type": "disabled"},
                 "reasoning_effort": "none",
                 "temperature": 0,
-                "max_tokens": MAX_OUTPUT_TOKENS,
+                "response_format": {"type": "json_object"},
+                "max_tokens": DEEPSEEK_MAX_OUTPUT_TOKENS,
             },
         )
         response.raise_for_status()
@@ -259,8 +263,7 @@ class DeepSeekAnalyzer:
         logger.info("DeepSeek brief spent about $%.4f (cap $%.2f)", actual, self.max_cost_usd)
         text = str(payload["choices"][0]["message"].get("content") or "")
         if not text.strip():
-            logger.warning("DeepSeek returned an empty brief; treating it as no selections")
-            return []
+            raise RuntimeError("DeepSeek returned an empty brief; leaving items pending for retry")
         try:
             parsed = AnalysisBatch.model_validate_json(_strip_code_fence(text))
         except Exception as exc:
@@ -283,10 +286,17 @@ class DeepSeekAnalyzer:
 def compact_items(
     items: list[SourceItem], max_chars: int = MAX_CORPUS_CHARS
 ) -> list[dict[str, str | None]]:
-    ordered = sorted(
-        items,
-        key=lambda item: item.source_category != SourceCategory.BOARD_OF_REGENTS,
-    )
+    board_items = [
+        item for item in items if item.source_category == SourceCategory.BOARD_OF_REGENTS
+    ]
+    by_school: dict[str, list[SourceItem]] = defaultdict(list)
+    for item in items:
+        if item.source_category != SourceCategory.BOARD_OF_REGENTS:
+            by_school[item.university_name or "Unknown"].append(item)
+    # Interleave schools so the input budget cannot be exhausted by the first campus.
+    ordered = board_items + [
+        item for row in zip_longest(*by_school.values()) for item in row if item is not None
+    ]
     corpus: list[dict[str, str | None]] = []
     used = 2
     for item in ordered:
@@ -308,7 +318,7 @@ def compact_items(
         extra = len(encoded) + (1 if corpus else 0)
         if used + extra > max_chars:
             logger.warning(
-                "Corpus truncated at %s/%s items to stay within one Claude request",
+                "Corpus truncated at %s/%s items to stay within one model request",
                 len(corpus),
                 len(items),
             )
@@ -343,7 +353,7 @@ def _prompt_cost(user_content: str) -> float:
 
 def _deepseek_prompt_cost(user_content: str) -> float:
     input_tokens = _estimate_tokens(SYSTEM_PROMPT) + _estimate_tokens(user_content)
-    return estimate_deepseek_flash_cost_usd(input_tokens, MAX_OUTPUT_TOKENS)
+    return estimate_deepseek_flash_cost_usd(input_tokens, DEEPSEEK_MAX_OUTPUT_TOKENS)
 
 
 def _estimate_tokens(text: str) -> int:

@@ -13,7 +13,8 @@ closed if enabled without a future approved provider implementation.
 1. At 8:00 AM Eastern, GitHub Actions fetches Reddit posts from configured public subreddit
    listings, campus newsletters, and current/prior USG meeting archives.
 2. Supabase inserts previously unseen source IDs. The first successful production run establishes
-   a baseline and sends nothing, preventing an archive flood.
+   a baseline and sends nothing, preventing an archive flood. Use `--send-initial-digest` to
+   explicitly include the first collection in a digest.
 3. DeepSeek screens all unscreened items, returns validated structured analysis, and ranks
    concrete campus-facing ideas. Anonymous posts are explicitly presented as unverified signals.
 4. If any item meets the configured threshold, Gmail SMTP or Resend delivers HTML and plain-text
@@ -86,7 +87,13 @@ Add these repository secrets:
 
 Reddit no longer needs GitHub secrets. The workflow has two UTC schedules and an Eastern-time
 guard so daylight-saving changes do not shift the local delivery time. Pushes run a dry-run and
-upload the HTML preview. Manual runs also dry-run unless `send_email` is set to `true`.
+upload a UGA-only HTML preview. Scheduled and manual runs use all 24 SEC and Ivy League schools.
+Manual runs also dry-run unless `send_email` is set to `true`; select `send_initial_digest` to
+send the first collection immediately. Later runs only consider newly collected items.
+
+The legacy reply-research workflow stays disabled unless the repository variable
+`ENABLE_REPLY_RESEARCH` is `true`. It still requires an Anthropic key; the DeepSeek daily digest
+does not. Email replies are not processed by the outbound monitor.
 
 ## Reply research on Vercel
 
