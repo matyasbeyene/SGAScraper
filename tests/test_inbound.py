@@ -168,7 +168,13 @@ def test_gmail_poller_uses_valid_imap_search(monkeypatch: pytest.MonkeyPatch) ->
             calls.append(args)
             return "OK", [b""]
 
-    monkeypatch.setattr("imaplib.IMAP4_SSL", lambda host, port: FakeMailbox())
+    def open_mailbox(host: str, port: int, timeout: float) -> FakeMailbox:
+        assert host == "imap.gmail.com"
+        assert port == 993
+        assert timeout == 30
+        return FakeMailbox()
+
+    monkeypatch.setattr("imaplib.IMAP4_SSL", open_mailbox)
     result = GmailInboxPoller(
         address="sender@example.com",
         app_password="app-password",

@@ -147,15 +147,17 @@ class GmailInboxPoller:
         app_password: str,
         reply_address: str,
         service_factory: Any,
+        timeout_seconds: float = 30,
     ) -> None:
         self.address = address
         self.app_password = app_password.replace(" ", "")
         self.reply_address = reply_address.lower()
         self.service_factory = service_factory
+        self.timeout_seconds = timeout_seconds
 
     def poll(self) -> dict[str, int]:
         stats = {"found": 0, "processed": 0, "failed": 0}
-        with imaplib.IMAP4_SSL("imap.gmail.com", 993) as mailbox:
+        with imaplib.IMAP4_SSL("imap.gmail.com", 993, timeout=self.timeout_seconds) as mailbox:
             mailbox.login(self.address, self.app_password)
             mailbox.select("INBOX")
             status, data = cast(Any, mailbox).uid("search", None, "UNSEEN")
