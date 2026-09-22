@@ -22,6 +22,7 @@ from agentsenate.models import (
     SourceCategory,
     SourceItem,
 )
+from agentsenate.researcher import DeepSeekResearcher
 
 
 def analysis(external_id: str, score: int, useful: bool = True) -> InitiativeAnalysis:
@@ -54,8 +55,32 @@ def test_digest_escapes_source_content(source_item: SourceItem) -> None:
     )
     assert "<script>" not in html
     assert "&lt;script&gt;" in html
-    assert "View source" in html
+    assert "Sources:" in html
     assert str(source_item.source_url) in text
+
+
+def test_digest_renders_grouped_sources(source_item: SourceItem) -> None:
+    second = source_item.model_copy(
+        update={
+            "external_id": "t3_second",
+            "title": "Another Hillside dining thread",
+            "source_url": "https://www.reddit.com/r/UGA/comments/second",
+        }
+    )
+    grouped = analysis(source_item.external_id, 5).model_copy(
+        update={
+            "source_ids": [source_item.external_id, second.external_id],
+            "sentiment": "mixed",
+            "recommended_action": "Ask Dining Services for service-time data.",
+            "executive_summary": "Students are repeatedly discussing Hillside dining quality.",
+        }
+    )
+    _, html, text = render_digest(
+        [grouped], [source_item, second], datetime(2026, 9, 15, tzinfo=UTC)
+    )
+    assert "Another Hillside dining thread" in html
+    assert "Sentiment: mixed" in text
+    assert "Ask Dining Services" in text
 
 
 def test_json_code_fence_is_removed() -> None:
@@ -206,7 +231,9 @@ def test_deepseek_validates_json_and_filters_unknown_ids(source_item: SourceItem
         content = json.dumps(
             {
                 "initiatives": [
-                    analysis(source_item.external_id, 5).model_dump(),
+                    analysis(source_item.external_id, 5)
+                    .model_copy(update={"source_ids": [source_item.external_id, "invented"]})
+                    .model_dump(),
                     analysis("invented", 5).model_dump(),
                 ]
             }
@@ -216,9 +243,49 @@ def test_deepseek_validates_json_and_filters_unknown_ids(source_item: SourceItem
     analyzer = DeepSeekAnalyzer(
         "test-key", client=httpx.Client(transport=httpx.MockTransport(respond))
     )
-    assert [item.external_id for item in analyzer.analyze([source_item])] == [
-        source_item.external_id
-    ]
+    results = analyzer.analyze([source_item])
+    assert [item.external_id for item in results] == [source_item.external_id]
+    assert results[0].source_ids == [source_item.external_id]
+
+
+def test_deepseek_researcher_uses_monitored_context() -> None:
+    def respond(request: httpx.Request) -> httpx.Response:
+        body = json.loads(request.content)
+        assert "Recent monitored-source context" in body["messages"][1]["content"]
+        content = json.dumps(
+            {
+                "subject": "Dining follow-up",
+                "identified_initiative": "Hillside dining feedback",
+                "assessment": "The monitored context shows a student dining signal.",
+                "verification_status": "partially verified",
+                "comparable_policies": [],
+                "stakeholders": ["Dining Services"],
+                "recommended_actions": ["Ask Dining Services for rush-hour data."],
+                "unknowns": ["Whether the issue is campus-wide."],
+                "citations": [
+                    {
+                        "title": "Hillside thread",
+                        "url": "https://www.reddit.com/r/UGA/comments/hillside",
+                        "supports": "Student dining sentiment",
+                    }
+                ],
+            }
+        )
+        return httpx.Response(200, json={"choices": [{"message": {"content": content}}]})
+
+    result = DeepSeekResearcher(
+        "test-key", client=httpx.Client(transport=httpx.MockTransport(respond))
+    ).research(
+        "Can you look into this?",
+        [],
+        [
+            {
+                "title": "Hillside thread",
+                "source_url": "https://www.reddit.com/r/UGA/comments/hillside",
+            }
+        ],
+    )
+    assert result.identified_initiative == "Hillside dining feedback"
 
 
 def test_empty_deepseek_response_is_retryable(source_item: SourceItem) -> None:

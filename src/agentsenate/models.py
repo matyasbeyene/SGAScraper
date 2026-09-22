@@ -34,11 +34,14 @@ class SourceItem(BaseModel):
 
 class InitiativeAnalysis(BaseModel):
     external_id: str
+    source_ids: list[str] = Field(default_factory=list)
     is_useful: bool
     topic_tags: list[str] = Field(default_factory=list)
+    sentiment: str = "mixed"
     impact_classification: str
     target_stakeholder: str
     executive_summary: str
+    recommended_action: str = ""
     actionability_score: int = Field(ge=1, le=5)
     trend_alert_flag: bool = False
     evidence: str

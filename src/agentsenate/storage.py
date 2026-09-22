@@ -11,6 +11,10 @@ import libsql  # type: ignore[import-untyped]
 from agentsenate.models import InitiativeAnalysis, SourceItem
 
 
+def _analysis_source_ids(analysis: InitiativeAnalysis) -> list[str]:
+    return list(dict.fromkeys([analysis.external_id, *analysis.source_ids]))
+
+
 class Storage(Protocol):
     def has_successful_run(self) -> bool: ...
 
@@ -135,8 +139,9 @@ class TursoStorage:
         self.connection.executemany(
             "UPDATE source_items SET screened_at = ?, analysis = ? WHERE external_id = ?",
             [
-                (at.isoformat(), analysis.model_dump_json(), analysis.external_id)
+                (at.isoformat(), analysis.model_dump_json(), source_id)
                 for analysis in analyses
+                for source_id in _analysis_source_ids(analysis)
             ],
         )
         self.connection.commit()
@@ -361,15 +366,12 @@ class SupabaseRestStorage:
 
     def mark_screened(self, analyses: list[InitiativeAnalysis], at: datetime) -> None:
         for analysis in analyses:
-            self._request(
-                "PATCH",
-                "source_items",
-                params={"external_id": f"eq.{analysis.external_id}"},
-                json={
+            self._update_ids(
+                {
                     "screened_at": at.isoformat(),
                     "analysis": analysis.model_dump(mode="json"),
                 },
-                prefer="return=minimal",
+                _analysis_source_ids(analysis),
             )
 
     def mark_emailed(self, external_ids: list[str], at: datetime) -> None:
@@ -540,7 +542,9 @@ class MemoryStorage:
 
     def mark_screened(self, analyses: list[InitiativeAnalysis], at: datetime) -> None:
         del at
-        self.screened.update({analysis.external_id: analysis for analysis in analyses})
+        for analysis in analyses:
+            for source_id in _analysis_source_ids(analysis):
+                self.screened[source_id] = analysis
 
     def mark_emailed(self, external_ids: list[str], at: datetime) -> None:
         del at

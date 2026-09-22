@@ -6,7 +6,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from typing import Protocol
 
-from agentsenate.emailer import render_digest, select_topics
+from agentsenate.emailer import render_digest, select_topics, source_ids_for
 from agentsenate.models import InitiativeAnalysis, SourceItem
 from agentsenate.sources import SourceAdapter
 from agentsenate.storage import Storage
@@ -92,20 +92,23 @@ class Pipeline:
             send_id: str | None = None
             if selected:
                 subject, html, text = render_digest(selected, pending, now)
-                key_material = ",".join(sorted(item.external_id for item in selected))
+                selected_ids = sorted(
+                    {source_id for analysis in selected for source_id in source_ids_for(analysis)}
+                )
+                key_material = ",".join(selected_ids)
                 idempotency_key = hashlib.sha256(key_material.encode()).hexdigest()
                 if self.preview_writer is not None:
                     self.preview_writer(html)
                 if self.mailer is not None:
                     send_id = self.mailer.send(subject, html, text, idempotency_key)
-                    selected_ids = [item.external_id for item in selected]
                     self.storage.record_delivery(idempotency_key, selected_ids, send_id, now)
                     self.storage.mark_emailed(selected_ids, now)
             self.storage.mark_screened(analyses, now)
+            analysis_ids = {
+                source_id for analysis in analyses for source_id in source_ids_for(analysis)
+            }
             leftover = [
-                item.external_id
-                for item in pending
-                if item.external_id not in {analysis.external_id for analysis in analyses}
+                item.external_id for item in pending if item.external_id not in analysis_ids
             ]
             self.storage.mark_baselined(leftover, now)
             details = {

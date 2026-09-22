@@ -21,6 +21,11 @@ def select_topics(
     )[:maximum]
 
 
+def source_ids_for(analysis: InitiativeAnalysis) -> list[str]:
+    source_ids = list(dict.fromkeys([analysis.external_id, *analysis.source_ids]))
+    return source_ids or [analysis.external_id]
+
+
 def render_digest(
     selected: list[InitiativeAnalysis],
     source_items: list[SourceItem],
@@ -61,32 +66,48 @@ def render_digest(
         html_parts.append(f'<h2 style="font-size:18px">{escape(heading)}</h2>')
         text_parts.extend([heading, "-" * len(heading)])
         for analysis in analyses:
-            source = by_id[analysis.external_id]
-            school = source.university_name or "University System of Georgia"
+            sources = [
+                by_id[source_id] for source_id in source_ids_for(analysis) if source_id in by_id
+            ]
+            if not sources:
+                continue
+            schools = sorted(
+                {source.university_name or "University System of Georgia" for source in sources}
+            )
+            school = ", ".join(schools[:3]) + (" +" if len(schools) > 3 else "")
             tags = ", ".join(analysis.topic_tags)
+            evidence_links = "".join(
+                f'<li><a href="{escape(str(source.source_url))}">{escape(source.title)}</a></li>'
+                for source in sources[:5]
+            )
+            evidence_lines = [f"- {source.title}: {source.source_url}" for source in sources[:5]]
+            recommended_action = analysis.recommended_action or analysis.ranking_rationale
             html_parts.append(
                 '<section style="border-left:4px solid #4169e1;padding:2px 0 8px 14px;'
                 'margin:14px 0">'
-                f'<h3 style="margin-bottom:4px">{escape(source.title)}</h3>'
+                f'<h3 style="margin-bottom:4px">{escape(analysis.executive_summary)}</h3>'
                 f'<p style="margin:4px 0"><strong>{escape(school)}</strong> · '
-                f"Actionability {analysis.actionability_score}/5</p>"
-                f"<p>{escape(analysis.executive_summary)}</p>"
+                f"Actionability {analysis.actionability_score}/5 · "
+                f"Sentiment: {escape(analysis.sentiment)}</p>"
+                f"<p><strong>Next step:</strong> {escape(recommended_action)}</p>"
                 f"<p><strong>Why it matters:</strong> {escape(analysis.ranking_rationale)}<br>"
                 f"<strong>Stakeholder:</strong> {escape(analysis.target_stakeholder)}<br>"
                 f"<strong>Evidence:</strong> {escape(analysis.evidence)}"
                 + (f"<br><strong>Topics:</strong> {escape(tags)}" if tags else "")
-                + f'</p><p><a href="{escape(str(source.source_url))}">View source</a></p>'
+                + f"</p><p><strong>Sources:</strong></p><ul>{evidence_links}</ul>"
                 "</section>"
             )
             text_parts.extend(
                 [
-                    source.title,
-                    f"{school} | Actionability {analysis.actionability_score}/5",
-                    analysis.executive_summary,
+                    f"Issue: {analysis.executive_summary}",
+                    f"{school} | Actionability {analysis.actionability_score}/5 | "
+                    f"Sentiment: {analysis.sentiment}",
+                    f"Next step: {recommended_action}",
                     f"Why it matters: {analysis.ranking_rationale}",
                     f"Stakeholder: {analysis.target_stakeholder}",
                     f"Evidence: {analysis.evidence}",
-                    f"Source: {source.source_url}",
+                    "Sources:",
+                    *evidence_lines,
                     "",
                 ]
             )

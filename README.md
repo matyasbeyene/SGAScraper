@@ -15,12 +15,13 @@ closed if enabled without a future approved provider implementation.
 2. Supabase inserts previously unseen source IDs. The first successful production run establishes
    a baseline and sends nothing, preventing an archive flood. Use `--send-initial-digest` to
    explicitly include the first collection in a digest.
-3. DeepSeek screens all unscreened items, returns validated structured analysis, and ranks
-   concrete campus-facing ideas. Anonymous posts are explicitly presented as unverified signals.
+3. DeepSeek screens all unscreened items, clusters related posts into student-voice issues, and
+   ranks concrete campus-facing ideas. UGA complaints, praise, and mixed sentiment are included;
+   other schools are prioritized for initiatives, policies, and responses UGA can learn from.
 4. If any item meets the configured threshold, Gmail SMTP or Resend delivers HTML and plain-text
    versions. Empty digests are skipped.
-5. A Resend inbound webhook can be enabled later for reply-based research; the daily outbound MVP
-   does not require it.
+5. A Gmail inbox workflow can process replies to the digest address and send a DeepSeek-generated
+   follow-up based on the submitted text plus recent monitored context.
 
 ## Setup
 
@@ -61,7 +62,7 @@ email:
     - student@example.edu
   reply_to: research@inbound.example.edu
   authorized_reply_senders: [] # defaults to recipients
-  max_topics: 8
+  max_topics: 10
   minimum_actionability_score: 3
 ```
 
@@ -96,15 +97,26 @@ from GitHub runners; allow about an hour for the full scan, plus time for campus
 The job has a two-hour timeout. GitHub may delay scheduled starts, so 8 AM is the target start
 time rather than a guaranteed delivery time.
 
-The legacy reply-research workflow stays disabled unless the repository variable
-`ENABLE_REPLY_RESEARCH` is `true`. It still requires an Anthropic key; the DeepSeek daily digest
-does not. Email replies are not processed by the outbound monitor.
+The reply inbox workflow runs every 10 minutes and reads unread mail sent to the digest reply
+address. With Gmail sending, the default reply address is a plus alias like
+`matyasbeyene+agentsenate@gmail.com`. Make sure IMAP is enabled in Gmail settings so GitHub Actions
+can poll unread replies.
+
+Reply format is intentionally simple:
+
+```text
+Can you look into the Hillside dining complaints and tell me who owns this?
+```
+
+Attach up to five screenshots if useful. The low-cost DeepSeek reply mode records screenshot
+filenames but does not visually inspect image contents yet, so include the important context in
+the email body.
 
 ## Reply research on Vercel
 
 Apply the latest [`db/schema.supabase.sql`](db/schema.supabase.sql), including the
-`inbound_messages` table. In
-Resend, enable receiving for the domain used by `email.reply_to`, then create an
+`inbound_messages` table. Resend webhook replies are optional. In Resend, enable receiving for the
+domain used by `email.reply_to`, then create an
 `email.received` webhook pointing to:
 
 ```text

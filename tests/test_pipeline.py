@@ -36,6 +36,26 @@ class StaticAnalyzer:
         ]
 
 
+class GroupedAnalyzer:
+    def analyze(self, items: list[SourceItem]) -> list[InitiativeAnalysis]:
+        return [
+            InitiativeAnalysis(
+                external_id=items[0].external_id,
+                source_ids=[item.external_id for item in items],
+                is_useful=True,
+                topic_tags=["Dining"],
+                sentiment="mixed",
+                impact_classification="Student Voice",
+                target_stakeholder="Dining Services",
+                executive_summary="Students are discussing a dining hall issue across posts.",
+                recommended_action="Compare sentiment against Dining Services operations data.",
+                actionability_score=5,
+                evidence="Multiple posts mention the same dining hall.",
+                ranking_rationale="Repeated student discussion makes this worth checking.",
+            )
+        ]
+
+
 class RecordingMailer:
     def __init__(self) -> None:
         self.calls = 0
@@ -92,6 +112,22 @@ def test_unselected_items_are_not_left_pending(source_item: SourceItem) -> None:
         maximum_topics=8,
     ).run(datetime(2026, 9, 15, 12, tzinfo=UTC))
     assert result["sent"] is True
+    assert storage.pending_items() == []
+
+
+def test_grouped_sources_are_marked_emailed_and_handled(source_item: SourceItem) -> None:
+    extra = source_item.model_copy(update={"external_id": "t3_hillside_2", "title": "Hillside"})
+    storage = MemoryStorage(previously_ran=True)
+    result = Pipeline(
+        sources={"reddit": StaticSource(source_item), "news": StaticSource(extra)},
+        storage=storage,
+        analyzer=GroupedAnalyzer(),
+        mailer=RecordingMailer(),
+        minimum_score=3,
+        maximum_topics=10,
+    ).run(datetime(2026, 9, 15, 12, tzinfo=UTC))
+    assert result["selected"] == 1
+    assert storage.emailed == {source_item.external_id, extra.external_id}
     assert storage.pending_items() == []
 
 

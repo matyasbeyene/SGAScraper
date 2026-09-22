@@ -13,23 +13,32 @@ from agentsenate.models import AnalysisBatch, InitiativeAnalysis, SourceCategory
 
 logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = """You are writing a daily student-government brief.
-Read the aggregated campus corpus as a whole. Do not score every item. Select only the strongest
-campus-facing ideas, policy changes, service problems, funding decisions, and emerging student
-needs for today's brief.
+SYSTEM_PROMPT = """You are writing a daily student-government student-voice brief.
+Read the aggregated campus corpus as a whole. Do not score every item. Cluster related posts,
+articles, and policy documents into issue-level entries whenever possible.
+
+For University of Georgia, include actionable complaints, praise, mixed sentiment, and emerging
+student voice because UGA issues can become local initiatives. For all other schools, prioritize
+actual initiatives, policies, SGA actions, administration responses, pilots, funding decisions, and
+student-government playbooks that UGA could learn from. Other-school complaints are useful only
+when the corpus shows a response or a clear initiative pattern.
 
 Reject jokes, unsupported rumors, personal attacks, routine administrative maintenance, duplicate
-chatter, and content without a concrete issue or initiative.
+chatter, and content without a concrete issue, student voice signal, or initiative.
 
 Return JSON only with this shape:
-{"initiatives":[{"external_id":"...","is_useful":true,"topic_tags":["..."],
-"impact_classification":"Operational/Actionable|Symbolic|Internal Governance",
+{"initiatives":[{"external_id":"primary source id","source_ids":["all source ids in this cluster"],
+"is_useful":true,"topic_tags":["..."],"sentiment":"positive|negative|mixed|neutral",
+"impact_classification":"Operational/Actionable|Symbolic|Internal Governance|Student Voice",
 "target_stakeholder":"...","executive_summary":"two factual sentences maximum",
-"actionability_score":1,"trend_alert_flag":false,"evidence":"short quote or precise fact",
-"ranking_rationale":"one sentence"}]}
+"recommended_action":"one concrete SGA next step","actionability_score":1,
+"trend_alert_flag":false,"evidence":"short quote or precise fact",
+"ranking_rationale":"one sentence explaining why this cluster matters"}]}
 
-Return at most the requested number of initiatives. Use only external_id values from the corpus.
-Do not invent facts or IDs. A trend flag requires at least three independent schools describing
+Return up to the requested number of issue clusters. Prefer clusters supported by multiple sources,
+then high-impact single-source policy actions. Use only external_id values from the corpus. The
+primary external_id must also appear in source_ids. Do not invent facts or IDs. A trend flag can
+mean multiple posts at one school discussing the same issue or multiple schools describing
 substantially the same issue. Treat anonymous forum content as a signal requiring verification,
 not as established fact.
 """
@@ -113,7 +122,7 @@ class ClaudeAnalyzer:
         parsed = AnalysisBatch.model_validate_json(_strip_code_fence(text))
         known = {item.external_id for item in items}
         selected = [
-            analysis
+            _normalize_sources(analysis, known)
             for analysis in parsed.initiatives
             if analysis.external_id in known and analysis.is_useful
         ]
@@ -137,11 +146,14 @@ def fallback_analyses(items: list[SourceItem], max_topics: int) -> list[Initiati
         analyses.append(
             InitiativeAnalysis(
                 external_id=item.external_id,
+                source_ids=[item.external_id],
                 is_useful=True,
                 topic_tags=_fallback_tags(item),
+                sentiment="neutral",
                 impact_classification="Operational/Actionable",
                 target_stakeholder="Relevant campus administrator",
                 executive_summary=_fallback_summary(item),
+                recommended_action="Verify the student signal and identify the campus owner.",
                 actionability_score=score,
                 evidence=_snippet(item.raw_text or item.title, 180),
                 ranking_rationale="Selected by fallback keyword scoring after model JSON failed.",
@@ -271,7 +283,7 @@ class DeepSeekAnalyzer:
             return fallback_analyses(items, self.max_topics)
         known = {item.external_id for item in items}
         selected = [
-            analysis
+            _normalize_sources(analysis, known)
             for analysis in parsed.initiatives
             if analysis.external_id in known and analysis.is_useful
         ]
@@ -340,10 +352,19 @@ def estimate_deepseek_flash_cost_usd(input_tokens: int, output_tokens: int) -> f
 
 def _brief_prompt(max_topics: int, corpus: list[dict[str, str | None]]) -> str:
     return (
-        f"Select up to {max_topics} initiatives for today's brief "
+        f"Select up to {max_topics} student-voice issue clusters for today's brief "
         f"from this aggregated corpus of {len(corpus)} items:\n"
         + json.dumps(corpus, ensure_ascii=False)
     )
+
+
+def _normalize_sources(
+    analysis: InitiativeAnalysis, known_external_ids: set[str]
+) -> InitiativeAnalysis:
+    source_ids = [source_id for source_id in analysis.source_ids if source_id in known_external_ids]
+    if analysis.external_id not in source_ids:
+        source_ids.insert(0, analysis.external_id)
+    return analysis.model_copy(update={"source_ids": source_ids})
 
 
 def _prompt_cost(user_content: str) -> float:
