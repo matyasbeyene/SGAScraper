@@ -10,6 +10,7 @@ from typing import Any
 
 import pytest
 
+from agentsenate.gmail import GmailInboxPoller
 from agentsenate.inbound import (
     InboundRejected,
     InboundResearchService,
@@ -144,3 +145,35 @@ def test_webhook_signature_verification() -> None:
     )
     with pytest.raises(ValueError):
         verify_resend_webhook(payload + " ", webhook_id, timestamp, signature, secret)
+
+
+def test_gmail_poller_uses_valid_imap_search(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[tuple[object, ...]] = []
+
+    class FakeMailbox:
+        def __enter__(self) -> FakeMailbox:
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            pass
+
+        def login(self, address: str, password: str) -> None:
+            assert address == "sender@example.com"
+            assert password == "app-password"
+
+        def select(self, mailbox: str) -> None:
+            assert mailbox == "INBOX"
+
+        def uid(self, *args: object) -> tuple[str, list[bytes]]:
+            calls.append(args)
+            return "OK", [b""]
+
+    monkeypatch.setattr("imaplib.IMAP4_SSL", lambda host, port: FakeMailbox())
+    result = GmailInboxPoller(
+        address="sender@example.com",
+        app_password="app-password",
+        reply_address="sender+agentsenate@example.com",
+        service_factory=lambda gateway: None,
+    ).poll()
+    assert result == {"found": 0, "processed": 0, "failed": 0}
+    assert calls == [("search", None, "UNSEEN")]

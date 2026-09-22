@@ -9,7 +9,7 @@ from email import message_from_bytes
 from email.message import EmailMessage
 from email.policy import default
 from email.utils import formatdate, make_msgid, parsedate_to_datetime
-from typing import Any
+from typing import Any, cast
 
 from agentsenate.emailer import render_research
 from agentsenate.inbound import InboundRejected
@@ -158,7 +158,7 @@ class GmailInboxPoller:
         with imaplib.IMAP4_SSL("imap.gmail.com", 993) as mailbox:
             mailbox.login(self.address, self.app_password)
             mailbox.select("INBOX")
-            status, data = mailbox.uid("search", "", "UNSEEN")
+            status, data = cast(Any, mailbox).uid("search", None, "UNSEEN")
             if status != "OK":
                 raise RuntimeError("Gmail inbox search failed")
             for uid in data[0].split():
