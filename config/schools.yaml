@@ -231,8 +231,9 @@ email:
 sources:
   reddit:
     enabled: true
+    rss_only: true
     include_top_level_comments: false
-    min_request_interval_seconds: 0.5
+    min_request_interval_seconds: 61
     lookback_days: 7
     feeds: [new]
     max_pages: 1

@@ -19,6 +19,7 @@ email:
 sources:
   reddit:
     enabled: true
+    rss_only: true
     include_top_level_comments: false
     min_request_interval_seconds: 0
     lookback_days: 7

@@ -16,6 +16,11 @@ on:
         description: "Include the first collection in the digest (requires send_email)"
         type: boolean
         default: false
+      scope:
+        description: "Schools to collect (daily schedule always uses all)"
+        type: choice
+        options: [all, uga-test]
+        default: all
 
 permissions:
   contents: read
@@ -27,7 +32,7 @@ concurrency:
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 120
     steps:
       - name: Select Eastern morning schedule
         id: time
@@ -70,7 +75,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          AGENTSENATE_CONFIG: ${{ github.event_name == 'push' && 'config/smoke.yaml' || 'config/schools.yaml' }}
+          AGENTSENATE_CONFIG: ${{ (github.event_name == 'push' || inputs.scope == 'uga-test') && 'config/smoke.yaml' || 'config/schools.yaml' }}
           SEND_INITIAL_DIGEST: ${{ inputs.send_initial_digest }}
         run: |
           if [[ "${{ github.event_name }}" == "push" ]]; then

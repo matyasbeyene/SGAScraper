@@ -53,11 +53,14 @@ class Pipeline:
         try:
             for name, source in self.sources.items():
                 try:
-                    fetched.extend(source.fetch(now, self.lookback))
+                    source_items = source.fetch(now, self.lookback)
                 except Exception as exc:
                     logger.exception("Source %s failed", name)
                     source_errors[name] = str(exc)
-            self.storage.store_items(fetched)
+                else:
+                    self.storage.store_items(source_items)
+                    fetched.extend(source_items)
+                    logger.info("Stored %s items from %s", len(source_items), name)
             pending = self.storage.pending_items()
 
             if not self.storage.has_successful_run() and not self.send_initial_digest:

@@ -90,6 +90,11 @@ guard so daylight-saving changes do not shift the local delivery time. Pushes ru
 upload a UGA-only HTML preview. Scheduled and manual runs use all 24 SEC and Ivy League schools.
 Manual runs also dry-run unless `send_email` is set to `true`; select `send_initial_digest` to
 send the first collection immediately. Later runs only consider newly collected items.
+Choose `scope: uga-test` for a short UGA-only delivery test. The daily schedule always uses all
+schools. Reddit RSS requests are spaced at least 61 seconds apart after observed rate limiting
+from GitHub runners; allow about an hour for the full scan, plus time for campus news feeds.
+The job has a two-hour timeout. GitHub may delay scheduled starts, so 8 AM is the target start
+time rather than a guaranteed delivery time.
 
 The legacy reply-research workflow stays disabled unless the repository variable
 `ENABLE_REPLY_RESEARCH` is `true`. It still requires an Anthropic key; the DeepSeek daily digest

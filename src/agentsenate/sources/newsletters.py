@@ -73,7 +73,7 @@ class NewsletterSource:
                     items.extend(
                         self._fetch_target(school, target.name, str(target.url), now, cutoff)
                     )
-                except httpx.HTTPError as exc:
+                except (httpx.HTTPError, ET.ParseError) as exc:
                     logger.warning("Newsletter %s (%s) failed: %s", target.name, target.url, exc)
         unique: dict[str, SourceItem] = {}
         for item in items:

@@ -12,6 +12,7 @@ from agentsenate.models import School
 
 class RedditConfig(BaseModel):
     enabled: bool = True
+    rss_only: bool = False
     include_top_level_comments: bool = False
     min_request_interval_seconds: float = Field(default=61.0, ge=0)
     lookback_days: int = Field(default=90, ge=1, le=365)

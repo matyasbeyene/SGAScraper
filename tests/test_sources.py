@@ -114,6 +114,28 @@ def test_reddit_falls_back_to_old_reddit_after_403() -> None:
     assert fallback in client.urls
 
 
+def test_reddit_rss_only_skips_json_and_survives_malformed_feed() -> None:
+    now = datetime(2026, 9, 15, 12, tzinfo=UTC)
+    rss = Path("tests/fixtures/reddit_new.rss").read_text(encoding="utf-8")
+    bad_url = "https://www.reddit.com/r/bad/new/.rss"
+    good_url = "https://www.reddit.com/r/UGA/new/.rss"
+    client = Router(
+        {
+            bad_url: _text_response(bad_url, "not XML"),
+            good_url: _text_response(good_url, rss, content_type="application/rss+xml"),
+        }
+    )
+    source = RedditSource(
+        RedditConfig(rss_only=True, min_request_interval_seconds=0, feeds=["new"]),
+        [School(name="University of Georgia", subreddits=["bad", "UGA"])],
+        "agentsenate-test",
+        client=client,  # type: ignore[arg-type]
+        sleeper=lambda _: None,
+    )
+    assert source.fetch(now, timedelta(days=30))
+    assert client.urls == [bad_url, good_url]
+
+
 def test_reddit_rss_fallback_when_json_is_not_json() -> None:
     now = datetime(2026, 9, 15, 12, tzinfo=UTC)
     rss = Path("tests/fixtures/reddit_new.rss").read_text(encoding="utf-8")

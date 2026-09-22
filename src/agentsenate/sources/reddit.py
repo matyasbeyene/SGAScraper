@@ -103,16 +103,16 @@ class RedditSource:
             logger.warning("Unknown Reddit feed %s", feed_name)
             return []
         last_error: Exception | None = None
-        for host in HOSTS:
+        for host in (() if self.config.rss_only else HOSTS):
             try:
                 return self._paginate_json(host, school, subreddit, feed_name, observed_at, cutoff)
             except (httpx.HTTPError, json.JSONDecodeError, KeyError, ValueError) as exc:
                 last_error = exc
                 logger.info("Reddit JSON %s/%s on %s failed: %s", subreddit, feed_name, host, exc)
-        for host in HOSTS:
+        for host in (HOSTS[:1] if self.config.rss_only else HOSTS):
             try:
                 return self._fetch_rss(host, school, subreddit, feed_name, observed_at, cutoff)
-            except httpx.HTTPError as exc:
+            except (httpx.HTTPError, ET.ParseError) as exc:
                 last_error = exc
                 logger.info("Reddit RSS %s/%s on %s failed: %s", subreddit, feed_name, host, exc)
         logger.warning("Reddit feed %s/%s failed: %s", subreddit, feed_name, last_error)
