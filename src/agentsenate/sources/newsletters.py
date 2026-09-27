@@ -21,6 +21,8 @@ from agentsenate.sources.common import (
     DEFAULT_USER_AGENT,
     RateLimitedClient,
     content_hash,
+    is_campus_signal,
+    is_sports_noise,
     looks_like_feed,
     parse_datetime,
     xml_link,
@@ -115,6 +117,10 @@ class NewsletterSource:
                 published_at = page.get("published_at") or published_at
                 author = page.get("author") or author
             if isinstance(published_at, datetime) and published_at < cutoff:
+                continue
+            if self.config.require_campus_signal and (
+                is_sports_noise(title, text) or not is_campus_signal(title, text)
+            ):
                 continue
             external_id = content_hash(article_url)
             items.append(

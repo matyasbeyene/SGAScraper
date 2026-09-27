@@ -7,7 +7,7 @@ import yaml
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from agentsenate.models import School
+from agentsenate.models import NamedTarget, School
 
 
 class RedditConfig(BaseModel):
@@ -34,18 +34,56 @@ class NewsletterConfig(BaseModel):
     min_request_interval_seconds: float = Field(default=1.0, ge=0)
     max_articles_per_feed: int = Field(default=25, ge=1, le=100)
     fetch_article_body: bool = True
+    require_campus_signal: bool = True
+
+
+class HackathonConfig(BaseModel):
+    enabled: bool = True
+    min_request_interval_seconds: float = Field(default=1.0, ge=0)
+    require_winner: bool = True
+    require_sga_relevance: bool = True
+
+
+class InstagramConfig(BaseModel):
+    enabled: bool = True
+    min_request_interval_seconds: float = Field(default=1.0, ge=0)
+    max_posts_per_account: int = Field(default=8, ge=1, le=25)
+    drop_sports: bool = True
 
 
 class YikYakConfig(BaseModel):
     enabled: bool = False
     provider: str | None = None
+    drop_dir: Path = Path("data/yikyak")
+
+
+class ListingConfig(BaseModel):
+    enabled: bool = True
+    min_request_interval_seconds: float = Field(default=1.0, ge=0)
+    max_items_per_target: int = Field(default=12, ge=1, le=50)
+    fetch_body: bool = True
+
+
+class LegislatureConfig(ListingConfig):
+    targets: list[NamedTarget] = Field(default_factory=list)
+
+
+class TradePressConfig(ListingConfig):
+    targets: list[NamedTarget] = Field(default_factory=list)
 
 
 class SourcesConfig(BaseModel):
     reddit: RedditConfig = Field(default_factory=RedditConfig)
     usg_board: USGConfig = Field(default_factory=USGConfig)
     newsletters: NewsletterConfig = Field(default_factory=NewsletterConfig)
+    hackathons: HackathonConfig = Field(default_factory=HackathonConfig)
+    instagram: InstagramConfig = Field(default_factory=InstagramConfig)
     yikyak: YikYakConfig = Field(default_factory=YikYakConfig)
+    sga: ListingConfig = Field(default_factory=ListingConfig)
+    governance: ListingConfig = Field(default_factory=ListingConfig)
+    local_gov: ListingConfig = Field(default_factory=ListingConfig)
+    legislatures: LegislatureConfig = Field(default_factory=LegislatureConfig)
+    trade_press: TradePressConfig = Field(default_factory=TradePressConfig)
 
 
 class EmailConfig(BaseModel):
@@ -86,6 +124,8 @@ class Secrets(BaseSettings):
     resend_webhook_secret: str = ""
     gmail_address: str = ""
     gmail_app_password: str = ""
+    instagram_access_token: str = ""
+    instagram_business_account_id: str = ""
     agentsenate_config: Path = Path("config/schools.yaml")
     log_level: str = "INFO"
 

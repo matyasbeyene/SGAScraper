@@ -45,6 +45,25 @@ not as established fact.
 
 FORUM_SNIPPET = 280
 BOARD_SNIPPET = 700
+POLICY_PRIORITY = {
+    SourceCategory.SGA: 0,
+    SourceCategory.GOVERNANCE: 0,
+    SourceCategory.BOARD_OF_REGENTS: 0,
+    SourceCategory.STATE_LEGISLATURE: 1,
+    SourceCategory.LOCAL_GOVERNMENT: 2,
+    SourceCategory.TRADE_PRESS: 3,
+    SourceCategory.NEWSLETTER: 4,
+    SourceCategory.HACKATHON: 5,
+    SourceCategory.SOCIAL: 6,
+    SourceCategory.FORUM: 7,
+}
+POLICY_CATEGORIES = {
+    SourceCategory.SGA,
+    SourceCategory.GOVERNANCE,
+    SourceCategory.BOARD_OF_REGENTS,
+    SourceCategory.STATE_LEGISLATURE,
+    SourceCategory.LOCAL_GOVERNMENT,
+}
 MAX_CORPUS_CHARS = 24_000
 MAX_OUTPUT_TOKENS = 1_200
 DEEPSEEK_MAX_OUTPUT_TOKENS = 4_000
@@ -298,12 +317,16 @@ class DeepSeekAnalyzer:
 def compact_items(
     items: list[SourceItem], max_chars: int = MAX_CORPUS_CHARS
 ) -> list[dict[str, str | None]]:
+    policy_first = sorted(
+        items,
+        key=lambda item: POLICY_PRIORITY.get(item.source_category, 9),
+    )
     board_items = [
-        item for item in items if item.source_category == SourceCategory.BOARD_OF_REGENTS
+        item for item in policy_first if item.source_category in POLICY_CATEGORIES
     ]
     by_school: dict[str, list[SourceItem]] = defaultdict(list)
-    for item in items:
-        if item.source_category != SourceCategory.BOARD_OF_REGENTS:
+    for item in policy_first:
+        if item.source_category not in POLICY_CATEGORIES:
             by_school[item.university_name or "Unknown"].append(item)
     # Interleave schools so the input budget cannot be exhausted by the first campus.
     ordered = board_items + [
@@ -313,9 +336,7 @@ def compact_items(
     used = 2
     for item in ordered:
         snippet_limit = (
-            BOARD_SNIPPET
-            if item.source_category == SourceCategory.BOARD_OF_REGENTS
-            else FORUM_SNIPPET
+            BOARD_SNIPPET if item.source_category in POLICY_CATEGORIES else FORUM_SNIPPET
         )
         row = {
             "external_id": item.external_id,

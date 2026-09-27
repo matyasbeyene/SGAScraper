@@ -11,6 +11,13 @@ class SourceCategory(StrEnum):
     FORUM = "Forum"
     BOARD_OF_REGENTS = "Board of Regents"
     NEWSLETTER = "Newsletter"
+    HACKATHON = "Hackathon"
+    SOCIAL = "Social"
+    SGA = "Student Government"
+    GOVERNANCE = "Governance"
+    LOCAL_GOVERNMENT = "Local Government"
+    STATE_LEGISLATURE = "State Legislature"
+    TRADE_PRESS = "Trade Press"
 
 
 class SourceItem(BaseModel):
@@ -68,11 +75,27 @@ class NewsletterTarget(BaseModel):
     url: HttpUrl
 
 
+class HackathonTarget(BaseModel):
+    name: str
+    url: HttpUrl
+
+
+class NamedTarget(BaseModel):
+    name: str
+    url: HttpUrl
+    jurisdiction: str | None = None
+
+
 class School(BaseModel):
     name: str
     aliases: list[str] = Field(default_factory=list)
     subreddits: list[str] = Field(default_factory=list)
     newsletters: list[NewsletterTarget] = Field(default_factory=list)
+    hackathons: list[HackathonTarget] = Field(default_factory=list)
+    sga: list[NamedTarget] = Field(default_factory=list)
+    governance: list[NamedTarget] = Field(default_factory=list)
+    local_gov: list[NamedTarget] = Field(default_factory=list)
+    instagram: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 

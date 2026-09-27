@@ -12,9 +12,16 @@ from agentsenate.emailer import ResendMailer
 from agentsenate.gmail import GmailSender
 from agentsenate.pipeline import Mailer, Pipeline
 from agentsenate.sources import (
+    GovernanceSource,
+    HackathonSource,
+    InstagramSource,
+    LegislatureSource,
+    LocalGovSource,
     NewsletterSource,
     RedditSource,
+    SGASource,
     SourceAdapter,
+    TradePressSource,
     USGBoardSource,
     YikYakSource,
 )
@@ -53,7 +60,12 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def build_sources(config: FileConfig, user_agent: str) -> dict[str, SourceAdapter]:
+def build_sources(
+    config: FileConfig,
+    user_agent: str,
+    instagram_access_token: str = "",
+    instagram_business_account_id: str = "",
+) -> dict[str, SourceAdapter]:
     return {
         "reddit": RedditSource(
             config.sources.reddit,
@@ -62,7 +74,19 @@ def build_sources(config: FileConfig, user_agent: str) -> dict[str, SourceAdapte
         ),
         "usg_board": USGBoardSource(config.sources.usg_board),
         "newsletters": NewsletterSource(config.sources.newsletters, config.schools),
-        "yikyak": YikYakSource(config.sources.yikyak),
+        "hackathons": HackathonSource(config.sources.hackathons, config.schools),
+        "instagram": InstagramSource(
+            config.sources.instagram,
+            config.schools,
+            access_token=instagram_access_token,
+            business_account_id=instagram_business_account_id,
+        ),
+        "sga": SGASource(config.sources.sga, config.schools),
+        "governance": GovernanceSource(config.sources.governance, config.schools),
+        "local_gov": LocalGovSource(config.sources.local_gov, config.schools),
+        "legislatures": LegislatureSource(config.sources.legislatures),
+        "trade_press": TradePressSource(config.sources.trade_press),
+        "yikyak": YikYakSource(config.sources.yikyak, config.schools),
     }
 
 
@@ -75,7 +99,12 @@ def main() -> None:
     )
     config = load_file_config(secrets.agentsenate_config)
     lookback = timedelta(days=config.sources.reddit.lookback_days)
-    sources = build_sources(config, secrets.reddit_user_agent)
+    sources = build_sources(
+        config,
+        secrets.reddit_user_agent,
+        secrets.instagram_access_token,
+        secrets.instagram_business_account_id,
+    )
     if args.sources_only:
         now = datetime.now(UTC)
         payload: dict[str, list[dict[str, object]]] = {}

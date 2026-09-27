@@ -1,237 +1,887 @@
 schools:
-  - name: University of Georgia
-    aliases: [UGA, Georgia]
-    subreddits: [UGA, universityofgeorgia, Athens]
-    newsletters:
-      - name: UGA Today
-        url: https://news.uga.edu/feed/
-    metadata:
-      conference: SEC
-      state: Georgia
-
-  - name: University of Alabama
-    aliases: [Alabama, Bama, UA]
-    subreddits: [capstone, rolltide]
-    newsletters:
-      - name: UA News Center
-        url: https://news.ua.edu/feed/
-    metadata:
-      conference: SEC
-      state: Alabama
-  - name: University of Arkansas
-    aliases: [Arkansas, UARK]
-    subreddits: [uark, Arkansas]
-    newsletters:
-      - name: Arkansas News
-        url: https://news.uark.edu/rss/articles
-    metadata:
-      conference: SEC
-      state: Arkansas
-  - name: Auburn University
-    aliases: [Auburn]
-    subreddits: [auburn, auburntigers]
-    newsletters:
-      - name: Auburn News
-        url: https://wire.auburn.edu/rss
-    metadata:
-      conference: SEC
-      state: Alabama
-  - name: University of Florida
-    aliases: [UF, Florida]
-    subreddits: [ufl, UniversityofFlorida, Gainesville]
-    newsletters:
-      - name: UF News
-        url: https://news.ufl.edu/
-    metadata:
-      conference: SEC
-      state: Florida
-  - name: University of Kentucky
-    aliases: [Kentucky, UK]
-    subreddits: [UniversityofKentucky, lexington]
-    newsletters:
-      - name: UKNow
-        url: https://uknow.uky.edu/rss.xml
-    metadata:
-      conference: SEC
-      state: Kentucky
-  - name: Louisiana State University
-    aliases: [LSU]
-    subreddits: [LSU, batonrouge]
-    newsletters:
-      - name: LSU Media Center
-        url: https://www.lsu.edu/mediacenter/news/index.php
-    metadata:
-      conference: SEC
-      state: Louisiana
-  - name: University of Mississippi
-    aliases: [Ole Miss, Mississippi]
-    subreddits: [olemiss, OxfordMS]
-    newsletters:
-      - name: Ole Miss News
-        url: https://news.olemiss.edu/
-    metadata:
-      conference: SEC
-      state: Mississippi
-  - name: Mississippi State University
-    aliases: [Mississippi State, MSU]
-    subreddits: [msstate, MississippiState]
-    newsletters:
-      - name: Mississippi State Newsroom
-        url: https://www.msstate.edu/newsroom/rss.xml
-    metadata:
-      conference: SEC
-      state: Mississippi
-  - name: University of Missouri
-    aliases: [Missouri, Mizzou]
-    subreddits: [mizzou, columbiamo]
-    newsletters:
-      - name: Mizzou News
-        url: https://showme.missouri.edu/feed/
-    metadata:
-      conference: SEC
-      state: Missouri
-  - name: University of Oklahoma
-    aliases: [Oklahoma, OU]
-    subreddits: [sooners, normanok]
-    newsletters:
-      - name: OU News
-        url: https://www.ou.edu/news
-    metadata:
-      conference: SEC
-      state: Oklahoma
-  - name: University of South Carolina
-    aliases: [South Carolina, UofSC, USC]
-    subreddits: [UofSC, Gamecocks, ColumbiaSC]
-    newsletters:
-      - name: UofSC News
-        url: https://sc.edu/uofsc/index.php
-    metadata:
-      conference: SEC
-      state: South Carolina
-  - name: University of Tennessee, Knoxville
-    aliases: [Tennessee, UTK]
-    subreddits: [UTK, ockytop, Knoxville]
-    newsletters:
-      - name: Tennessee Today
-        url: https://news.utk.edu/feed/
-    metadata:
-      conference: SEC
-      state: Tennessee
-  - name: University of Texas at Austin
-    aliases: [Texas, UT Austin]
-    subreddits: [UTAustin, LonghornNation, Austin]
-    newsletters:
-      - name: UT News
-        url: https://news.utexas.edu/feed/
-    metadata:
-      conference: SEC
-      state: Texas
-  - name: Texas A&M University
-    aliases: [Texas A&M, TAMU]
-    subreddits: [aggies, tamu, CollegeStation]
-    newsletters:
-      - name: Texas A&M Today
-        url: https://today.tamu.edu/feed/
-    metadata:
-      conference: SEC
-      state: Texas
-  - name: Vanderbilt University
-    aliases: [Vanderbilt, Vandy]
-    subreddits: [Vanderbilt, nashville]
-    newsletters:
-      - name: Vanderbilt News
-        url: https://news.vanderbilt.edu/feed/
-    metadata:
-      conference: SEC
-      state: Tennessee
-
-  - name: Brown University
-    aliases: [Brown]
-    subreddits: [BrownU, providence]
-    newsletters:
-      - name: Brown News
-        url: https://www.brown.edu/news/rss
-    metadata:
-      conference: Ivy League
-      state: Rhode Island
-  - name: Columbia University
-    aliases: [Columbia]
-    subreddits: [columbia, columbiauni, nyc]
-    newsletters:
-      - name: Columbia News
-        url: https://news.columbia.edu/rss.xml
-    metadata:
-      conference: Ivy League
-      state: New York
-  - name: Cornell University
-    aliases: [Cornell]
-    subreddits: [Cornell, ithaca]
-    newsletters:
-      - name: Cornell Chronicle
-        url: https://news.cornell.edu/categories/rss.xml
-    metadata:
-      conference: Ivy League
-      state: New York
-  - name: Dartmouth College
-    aliases: [Dartmouth]
-    subreddits: [dartmouth, hanover]
-    newsletters:
-      - name: Dartmouth News
-        url: https://home.dartmouth.edu/news
-    metadata:
-      conference: Ivy League
-      state: New Hampshire
-  - name: Harvard University
-    aliases: [Harvard]
-    subreddits: [Harvard, cambridgema]
-    newsletters:
-      - name: Harvard Gazette
-        url: https://news.harvard.edu/gazette/feed/
-    metadata:
-      conference: Ivy League
-      state: Massachusetts
-  - name: University of Pennsylvania
-    aliases: [Penn, UPenn]
-    subreddits: [UPenn, philadelphia]
-    newsletters:
-      - name: Penn Today
-        url: https://penntoday.upenn.edu/feed
-    metadata:
-      conference: Ivy League
-      state: Pennsylvania
-  - name: Princeton University
-    aliases: [Princeton]
-    subreddits: [princeton, princetonNJ]
-    newsletters:
-      - name: Princeton News
-        url: https://www.princeton.edu/news/rss.xml
-    metadata:
-      conference: Ivy League
-      state: New Jersey
-  - name: Yale University
-    aliases: [Yale]
-    subreddits: [yale, newhaven]
-    newsletters:
-      - name: Yale News
-        url: https://news.yale.edu/rss.xml
-    metadata:
-      conference: Ivy League
-      state: Connecticut
-
+- name: University of Georgia
+  aliases:
+  - UGA
+  - Georgia
+  subreddits:
+  - UGA
+  - universityofgeorgia
+  - Athens
+  newsletters:
+  - name: UGA Today
+    url: https://news.uga.edu/feed/
+  - name: The Red & Black
+    url: https://www.redandblack.com/search/?f=rss&t=article
+  metadata:
+    conference: SEC
+    state: Georgia
+  instagram:
+  - universityofga
+  hackathons:
+  - name: UGAHacks 11
+    url: https://ugahacks-11.devpost.com/project-gallery
+  sga:
+  - name: UGA SGA Legislation
+    url: https://sga.uga.edu/legislation/
+  governance:
+  - name: UGA University Council
+    url: https://apps.reg.uga.edu/UniversityCouncil/
+  local_gov:
+  - name: Athens-Clarke Commission
+    url: https://athensclarkecountyga.legistar.com/Calendar.aspx
+    jurisdiction: Athens-Clarke County
+- name: University of Alabama
+  aliases:
+  - Alabama
+  - Bama
+  - UA
+  subreddits:
+  - capstone
+  - rolltide
+  newsletters:
+  - name: UA News Center
+    url: https://news.ua.edu/feed/
+  - name: Crimson White
+    url: https://thecrimsonwhite.com/feed/
+  metadata:
+    conference: SEC
+    state: Alabama
+  instagram:
+  - uofalabama
+  hackathons:
+  - name: CrimsonHacks
+    url: https://crimsonhacks.devpost.com/project-gallery
+  sga:
+  - name: UA SGA
+    url: https://www.sga.ua.edu/
+  governance:
+  - name: UA System Board of Trustees
+    url: https://uasystem.edu/board-of-trustees/
+- name: University of Arkansas
+  aliases:
+  - Arkansas
+  - UARK
+  subreddits:
+  - uark
+  - Arkansas
+  - razorbacks
+  newsletters:
+  - name: Arkansas News
+    url: https://news.uark.edu/rss/articles
+  - name: Arkansas Traveler
+    url: https://www.uatrav.com/search/?f=rss&t=article
+  metadata:
+    conference: SEC
+    state: Arkansas
+  instagram:
+  - uarkansas
+- name: Auburn University
+  aliases:
+  - Auburn
+  subreddits:
+  - auburn
+  - auburntigers
+  newsletters:
+  - name: Auburn News
+    url: https://wire.auburn.edu/rss
+  - name: Auburn Plainsman
+    url: https://www.theplainsman.com/feed
+  metadata:
+    conference: SEC
+    state: Alabama
+  instagram:
+  - auburnu
+  sga:
+  - name: Auburn SGA
+    url: https://www.auburn.edu/sga/
+- name: University of Florida
+  aliases:
+  - UF
+  - Florida
+  subreddits:
+  - ufl
+  - UniversityofFlorida
+  - Gainesville
+  newsletters:
+  - name: UF News
+    url: https://news.ufl.edu/
+  - name: Independent Florida Alligator
+    url: https://www.alligator.org/search/?f=rss&t=article
+  metadata:
+    conference: SEC
+    state: Florida
+  instagram:
+  - uflorida
+  hackathons:
+  - name: SwampHacks X
+    url: https://swamphacksx.devpost.com/project-gallery
+  sga:
+  - name: UF Student Senate
+    url: https://sg.ufl.edu/branches/legislative/senate-resources/
+  governance:
+  - name: Florida Board of Governors
+    url: https://www.flbog.edu/board/meetings/
+  local_gov:
+  - name: Gainesville City Commission
+    url: https://gainesville.legistar.com/Calendar.aspx
+    jurisdiction: Gainesville
+- name: University of Kentucky
+  aliases:
+  - Kentucky
+  - UK
+  subreddits:
+  - UniversityofKentucky
+  - lexington
+  newsletters:
+  - name: UKNow
+    url: https://uknow.uky.edu/rss.xml
+  - name: Kentucky Kernel
+    url: https://kykernel.com/feed/
+  metadata:
+    conference: SEC
+    state: Kentucky
+  instagram:
+  - universityofky
+- name: Louisiana State University
+  aliases:
+  - LSU
+  subreddits:
+  - LSU
+  - batonrouge
+  newsletters:
+  - name: LSU Media Center
+    url: https://www.lsu.edu/mediacenter/news/index.php
+  - name: Daily Reveille
+    url: https://www.lsureveille.com/search/?f=rss&t=article
+  metadata:
+    conference: SEC
+    state: Louisiana
+  instagram:
+  - lsu
+- name: University of Mississippi
+  aliases:
+  - Ole Miss
+  - Mississippi
+  subreddits:
+  - olemiss
+  - OxfordMS
+  newsletters:
+  - name: Ole Miss News
+    url: https://news.olemiss.edu/
+  - name: Daily Mississippian
+    url: https://thedmonline.com/feed/
+  metadata:
+    conference: SEC
+    state: Mississippi
+  instagram:
+  - olemiss
+  governance:
+  - name: Mississippi IHL Board
+    url: https://www.mississippi.edu/ihl/
+- name: Mississippi State University
+  aliases:
+  - Mississippi State
+  - MSU
+  subreddits:
+  - msstate
+  - MississippiState
+  newsletters:
+  - name: Mississippi State Newsroom
+    url: https://www.msstate.edu/newsroom/rss.xml
+  - name: The Reflector
+    url: https://www.reflector-online.com/search/?f=rss&t=article
+  metadata:
+    conference: SEC
+    state: Mississippi
+  instagram:
+  - msstate
+- name: University of Missouri
+  aliases:
+  - Missouri
+  - Mizzou
+  subreddits:
+  - mizzou
+  - columbiamo
+  newsletters:
+  - name: Mizzou News
+    url: https://showme.missouri.edu/feed/
+  - name: The Maneater
+    url: https://www.themaneater.com/feed/
+  metadata:
+    conference: SEC
+    state: Missouri
+  instagram:
+  - mizzou
+- name: University of Oklahoma
+  aliases:
+  - Oklahoma
+  - OU
+  subreddits:
+  - sooners
+  - normanok
+  newsletters:
+  - name: OU News
+    url: https://www.ou.edu/news
+  - name: OU Daily
+    url: https://www.oudaily.com/search/?f=rss&t=article
+  metadata:
+    conference: SEC
+    state: Oklahoma
+  instagram:
+  - uofoklahoma
+- name: University of South Carolina
+  aliases:
+  - South Carolina
+  - UofSC
+  - USC
+  subreddits:
+  - UofSC
+  - Gamecocks
+  - ColumbiaSC
+  newsletters:
+  - name: UofSC News
+    url: https://sc.edu/uofsc/index.php
+  - name: Daily Gamecock
+    url: https://www.dailygamecock.com/search/?f=rss&t=article
+  metadata:
+    conference: SEC
+    state: South Carolina
+  instagram:
+  - uofsc
+- name: University of Tennessee, Knoxville
+  aliases:
+  - Tennessee
+  - UTK
+  - Vols
+  subreddits:
+  - UTK
+  - ockytop
+  - Knoxville
+  newsletters:
+  - name: Tennessee Today
+    url: https://news.utk.edu/feed/
+  - name: Daily Beacon
+    url: https://www.utdailybeacon.com/search/?f=rss&t=article
+  metadata:
+    conference: SEC
+    state: Tennessee
+  instagram:
+  - utknoxville
+  sga:
+  - name: UTK Student Government
+    url: https://sga.utk.edu/
+- name: University of Texas at Austin
+  aliases:
+  - Texas
+  - UT Austin
+  subreddits:
+  - UTAustin
+  - LonghornNation
+  - Austin
+  newsletters:
+  - name: UT News
+    url: https://news.utexas.edu/feed/
+  - name: Daily Texan
+    url: https://thedailytexan.com/feed/
+  metadata:
+    conference: SEC
+    state: Texas
+  instagram:
+  - utaustin
+  governance:
+  - name: UT System Board of Regents
+    url: https://www.utsystem.edu/board-of-regents/meetings
+  local_gov:
+  - name: Austin City Council
+    url: https://www.austintexas.gov/department/city-council/council-meetings
+    jurisdiction: Austin
+- name: Texas A&M University
+  aliases:
+  - Texas A&M
+  - TAMU
+  subreddits:
+  - aggies
+  - tamu
+  - CollegeStation
+  newsletters:
+  - name: Texas A&M Today
+    url: https://today.tamu.edu/feed/
+  - name: The Battalion
+    url: https://www.thebatt.com/search/?f=rss&t=article
+  metadata:
+    conference: SEC
+    state: Texas
+  instagram:
+  - tamu
+- name: Vanderbilt University
+  aliases:
+  - Vanderbilt
+  - Vandy
+  subreddits:
+  - Vanderbilt
+  - nashville
+  newsletters:
+  - name: Vanderbilt News
+    url: https://news.vanderbilt.edu/feed/
+  - name: Vanderbilt Hustler
+    url: https://vanderbilthustler.com/feed/
+  metadata:
+    conference: SEC
+    state: Tennessee
+  instagram:
+  - vanderbiltu
+  hackathons:
+  - name: VandyHacks XII
+    url: https://vandyhacks-xii.devpost.com/project-gallery
+  sga:
+  - name: Vanderbilt Student Government
+    url: https://www.vanderbilt.edu/vsg/
+  local_gov:
+  - name: Metro Nashville Council
+    url: https://nashville.legistar.com/Calendar.aspx
+    jurisdiction: Nashville
+- name: Brown University
+  aliases:
+  - Brown
+  subreddits:
+  - BrownU
+  - providence
+  newsletters:
+  - name: Brown News
+    url: https://www.brown.edu/news/rss
+  - name: Brown Daily Herald
+    url: https://www.browndailyherald.com/feed/
+  metadata:
+    conference: Ivy League
+    state: Rhode Island
+  instagram:
+  - brownu
+- name: Columbia University
+  aliases:
+  - Columbia
+  subreddits:
+  - columbia
+  - columbiauni
+  - nyc
+  newsletters:
+  - name: Columbia News
+    url: https://news.columbia.edu/rss.xml
+  - name: Columbia Spectator
+    url: https://www.columbiaspectator.com/feed/
+  metadata:
+    conference: Ivy League
+    state: New York
+  instagram:
+  - columbia
+  local_gov:
+  - name: New York City Council
+    url: https://legistar.council.nyc.gov/Calendar.aspx
+    jurisdiction: New York City
+- name: Cornell University
+  aliases:
+  - Cornell
+  subreddits:
+  - Cornell
+  - ithaca
+  newsletters:
+  - name: Cornell Chronicle
+    url: https://news.cornell.edu/categories/rss.xml
+  - name: Cornell Daily Sun
+    url: https://cornellsun.com/feed/
+  metadata:
+    conference: Ivy League
+    state: New York
+  instagram:
+  - cornelluniversity
+  sga:
+  - name: Cornell Student Assembly
+    url: https://assembly.cornell.edu/student-assembly
+- name: Dartmouth College
+  aliases:
+  - Dartmouth
+  subreddits:
+  - dartmouth
+  - hanover
+  newsletters:
+  - name: Dartmouth News
+    url: https://home.dartmouth.edu/news
+  - name: The Dartmouth
+    url: https://www.thedartmouth.com/section/news.rss
+  metadata:
+    conference: Ivy League
+    state: New Hampshire
+  instagram:
+  - dartmouthcollege
+- name: Harvard University
+  aliases:
+  - Harvard
+  subreddits:
+  - Harvard
+  - cambridgema
+  newsletters:
+  - name: Harvard Gazette
+    url: https://news.harvard.edu/gazette/feed/
+  - name: Harvard Crimson
+    url: https://www.thecrimson.com/feeds/section/news/
+  metadata:
+    conference: Ivy League
+    state: Massachusetts
+  instagram:
+  - harvard
+  sga:
+  - name: Harvard Undergraduate Council Archives
+    url: https://www.harvarduc.org/archives
+  local_gov:
+  - name: Cambridge City Council
+    url: https://cambridgema.legistar.com/Calendar.aspx
+    jurisdiction: Cambridge
+- name: University of Pennsylvania
+  aliases:
+  - Penn
+  - UPenn
+  subreddits:
+  - UPenn
+  - philadelphia
+  newsletters:
+  - name: Penn Today
+    url: https://penntoday.upenn.edu/feed
+  - name: Daily Pennsylvanian
+    url: https://www.thedp.com/section/news.rss
+  metadata:
+    conference: Ivy League
+    state: Pennsylvania
+  instagram:
+  - uofpenn
+  sga:
+  - name: Penn Undergraduate Assembly
+    url: https://www.pennua.org/
+  local_gov:
+  - name: Philadelphia City Council
+    url: https://phila.legistar.com/Calendar.aspx
+    jurisdiction: Philadelphia
+- name: Princeton University
+  aliases:
+  - Princeton
+  subreddits:
+  - princeton
+  - princetonNJ
+  newsletters:
+  - name: Princeton News
+    url: https://www.princeton.edu/news/rss.xml
+  - name: Daily Princetonian
+    url: https://www.dailyprincetonian.com/feed/
+  metadata:
+    conference: Ivy League
+    state: New Jersey
+  instagram:
+  - princeton
+  sga:
+  - name: Princeton USG
+    url: https://www.princetonusg.com/
+- name: Yale University
+  aliases:
+  - Yale
+  subreddits:
+  - yale
+  - newhaven
+  newsletters:
+  - name: Yale News
+    url: https://news.yale.edu/rss.xml
+  - name: Yale Daily News
+    url: https://yaledailynews.com/feed/
+  metadata:
+    conference: Ivy League
+    state: Connecticut
+  instagram:
+  - yale
+  sga:
+  - name: Yale College Council
+    url: https://ycc.yalecollege.yale.edu/
+  local_gov:
+  - name: New Haven Board of Alders
+    url: https://newhavenct.legistar.com/Calendar.aspx
+    jurisdiction: New Haven
+- name: Georgia Institute of Technology
+  aliases:
+  - Georgia Tech
+  - GT
+  - Georgia Institute of Technology
+  instagram:
+  - georgiatech
+  subreddits:
+  - gatech
+  newsletters:
+  - name: Georgia Tech News
+    url: https://news.gatech.edu/rss.xml
+  - name: Technique
+    url: https://nique.net/feed/
+  hackathons:
+  - name: HackGT 12
+    url: https://hackgt-12.devpost.com/project-gallery
+  sga:
+  - name: Georgia Tech SGA
+    url: https://sga.gatech.edu/
+  local_gov:
+  - name: Atlanta City Council
+    url: https://atlantacityga.legistar.com/Calendar.aspx
+    jurisdiction: Atlanta
+  metadata:
+    state: Georgia
+- name: Emory University
+  aliases:
+  - Emory
+  instagram:
+  - emoryuniversity
+  subreddits:
+  - Emory
+  newsletters:
+  - name: Emory News
+    url: https://news.emory.edu/
+  - name: Emory Wheel
+    url: https://emorywheel.com/feed/
+  hackathons:
+  - name: HackEmory
+    url: https://hackemory.devpost.com/project-gallery
+  - name: Hacklytics 2026
+    url: https://hacklytics-2026.devpost.com/project-gallery
+  local_gov:
+  - name: Atlanta City Council
+    url: https://atlantacityga.legistar.com/Calendar.aspx
+    jurisdiction: Atlanta
+  metadata:
+    state: Georgia
+- name: Georgia State University
+  aliases:
+  - Georgia State
+  - GSU
+  instagram:
+  - georgiastateuniversity
+  subreddits:
+  - GaState
+  newsletters:
+  - name: Georgia State News Hub
+    url: https://news.gsu.edu/feed/
+  - name: The Signal
+    url: https://georgiastatesignal.com/feed/
+  local_gov:
+  - name: Atlanta City Council
+    url: https://atlantacityga.legistar.com/Calendar.aspx
+    jurisdiction: Atlanta
+  metadata:
+    state: Georgia
+- name: Georgia Southern University
+  aliases:
+  - Georgia Southern
+  - GaSou
+  instagram:
+  - georgiasouthern
+  subreddits:
+  - GSU
+  - georgiasouthern
+  newsletters:
+  - name: Georgia Southern News
+    url: https://news.georgiasouthern.edu/
+  - name: George-Anne
+    url: https://thegeorgeanne.com/feed/
+  metadata:
+    state: Georgia
+- name: University of Michigan
+  aliases:
+  - Michigan
+  - UMich
+  instagram:
+  - uofmichigan
+  subreddits:
+  - uofm
+  newsletters:
+  - name: Michigan Daily
+    url: https://www.michigandaily.com/feed/
+  sga:
+  - name: Central Student Government
+    url: https://csg.umich.edu/
+  local_gov:
+  - name: Ann Arbor City Council
+    url: https://a2gov.legistar.com/Calendar.aspx
+    jurisdiction: Ann Arbor
+  metadata:
+    state: Michigan
+- name: University of California, Los Angeles
+  aliases:
+  - UCLA
+  instagram:
+  - ucla
+  subreddits:
+  - ucla
+  newsletters:
+  - name: Daily Bruin
+    url: https://dailybruin.com/feed/
+  sga:
+  - name: UCLA USAC
+    url: https://usac.ucla.edu/
+  local_gov:
+  - name: Los Angeles City Council
+    url: https://lacity.legistar.com/Calendar.aspx
+    jurisdiction: Los Angeles
+  metadata:
+    state: California
+- name: University of California, Berkeley
+  aliases:
+  - Berkeley
+  - Cal
+  instagram:
+  - ucberkeleyofficial
+  subreddits:
+  - berkeley
+  newsletters:
+  - name: Daily Californian
+    url: https://www.dailycal.org/feed
+  sga:
+  - name: ASUC Senate
+    url: https://asuc.org/senate/
+  local_gov:
+  - name: Berkeley City Council
+    url: https://berkeley.legistar.com/Calendar.aspx
+    jurisdiction: Berkeley
+  metadata:
+    state: California
+- name: University of Wisconsin-Madison
+  aliases:
+  - Wisconsin
+  - UW-Madison
+  instagram:
+  - uwmadison
+  subreddits:
+  - UWMadison
+  newsletters:
+  - name: Daily Cardinal
+    url: https://www.dailycardinal.com/feed
+  sga:
+  - name: Associated Students of Madison
+    url: https://www.asm.wisc.edu/
+  local_gov:
+  - name: Madison Common Council
+    url: https://madison.legistar.com/Calendar.aspx
+    jurisdiction: Madison
+  metadata:
+    state: Wisconsin
+- name: University of North Carolina at Chapel Hill
+  aliases:
+  - UNC
+  - Chapel Hill
+  instagram:
+  - uncchapelhill
+  subreddits:
+  - UNC
+  newsletters:
+  - name: Daily Tar Heel
+    url: https://www.dailytarheel.com/feed/
+  metadata:
+    state: North Carolina
+    why: Large public flagship with a strong SGA and town-gown housing fights
+- name: University of Virginia
+  aliases:
+  - UVA
+  - Virginia
+  instagram:
+  - uva
+  subreddits:
+  - UVA
+  newsletters:
+  - name: Cavalier Daily
+    url: https://www.cavalierdaily.com/feed/
+  metadata:
+    state: Virginia
+    why: Public flagship student self-governance UGA often copies
+- name: Florida State University
+  aliases:
+  - FSU
+  instagram:
+  - floridastateuniversity
+  subreddits:
+  - fsu
+  newsletters:
+  - name: FSView
+    url: https://www.fsunews.com/search/?f=rss&t=article
+  metadata:
+    state: Florida
+    why: SEC-adjacent public with similar dining, fees, and late-night transit issues
+- name: Clemson University
+  aliases:
+  - Clemson
+  instagram:
+  - clemsonuniversity
+  subreddits:
+  - clemson
+  newsletters:
+  - name: The Tiger
+    url: https://www.thetigercu.com/search/?f=rss&t=article
+  metadata:
+    state: South Carolina
+    why: Peer southern public; parking and off-campus housing bills travel well
+- name: North Carolina State University
+  aliases:
+  - NC State
+  - NCSU
+  instagram:
+  - ncstate
+  subreddits:
+  - NCSU
+  newsletters:
+  - name: Technician
+    url: https://www.technicianonline.com/search/?f=rss&t=article
+  metadata:
+    state: North Carolina
+    why: Large STEM public with active fee and transit legislation
+- name: Ohio State University
+  aliases:
+  - Ohio State
+  - OSU
+  instagram:
+  - theohiostateuniversity
+  subreddits:
+  - osu
+  newsletters:
+  - name: The Lantern
+    url: https://www.thelantern.com/feed/
+  metadata:
+    state: Ohio
+    why: Mega-campus playbook for buses, dining, and student fees
+- name: Pennsylvania State University
+  aliases:
+  - Penn State
+  instagram:
+  - pennstate
+  subreddits:
+  - PennStateUniversity
+  newsletters:
+  - name: Daily Collegian
+    url: https://www.psucollegian.com/search/?f=rss&t=article
+  metadata:
+    state: Pennsylvania
+    why: Flagship with a long record of student fee and safety bills
+- name: University of Illinois Urbana-Champaign
+  aliases:
+  - Illinois
+  - UIUC
+  instagram:
+  - illinois1867
+  subreddits:
+  - UIUC
+  newsletters:
+  - name: Daily Illini
+    url: https://dailyillini.com/feed/
+  metadata:
+    state: Illinois
+    why: Strong student senate and campus-town transit/housing policy
+- name: Indiana University
+  aliases:
+  - Indiana
+  - IU
+  instagram:
+  - indianauniversity
+  subreddits:
+  - IndianaUniversity
+  newsletters:
+  - name: Indiana Daily Student
+    url: https://www.idsnews.com/feed/
+  metadata:
+    state: Indiana
+    why: Big public with published student-government legislation
+- name: University of Maryland
+  aliases:
+  - Maryland
+  - UMD
+  instagram:
+  - umd
+  subreddits:
+  - UMD
+  newsletters:
+  - name: The Diamondback
+    url: https://dbknews.com/feed/
+  metadata:
+    state: Maryland
+    why: Flagship next to a capital; good for transit and state-budget bills
+- name: University of Minnesota
+  aliases:
+  - Minnesota
+  - UMN
+  instagram:
+  - umn
+  subreddits:
+  - uofmn
+  newsletters:
+  - name: Minnesota Daily
+    url: https://mndaily.com/feed/
+  metadata:
+    state: Minnesota
+    why: Twin Cities campus with mature student-fee and winter-safety policy
+- name: University of Washington
+  aliases:
+  - Washington
+  - UW
+  instagram:
+  - uofwa
+  subreddits:
+  - udub
+  newsletters:
+  - name: The Daily
+    url: https://www.dailyuw.com/search/?f=rss&t=article
+  metadata:
+    state: Washington
+    why: Urban public with U-Pass transit and housing models worth copying
+- name: University of Oregon
+  aliases:
+  - Oregon
+  instagram:
+  - uoregon
+  subreddits:
+  - uoregon
+  newsletters:
+  - name: Daily Emerald
+    url: https://www.dailyemerald.com/search/?f=rss&t=article
+  metadata:
+    state: Oregon
+    why: Similar college town; strong student-paper coverage of fees and housing
+- name: Arizona State University
+  aliases:
+  - Arizona State
+  - ASU
+  instagram:
+  - asurise
+  subreddits:
+  - ASU
+  newsletters:
+  - name: State Press
+    url: https://www.statepress.com/feed
+  metadata:
+    state: Arizona
+    why: Huge public that experiments with dining, online, and student services
+- name: Stanford University
+  aliases:
+  - Stanford
+  instagram:
+  - stanford
+  subreddits:
+  - stanford
+  newsletters:
+  - name: Stanford Daily
+    url: https://stanforddaily.com/feed/
+  metadata:
+    state: California
+    why: Idea factory for student-life and campus-policy experiments
 email:
   recipients:
-    - mkb59906@uga.edu
-    - bradywilliams2029@gmail.com
-    - bmw60291@uga.edu
-    - Treyvwilson@gmail.com
-    - vdw75026@uga.edu
-  reply_to: ""
+  - mkb59906@uga.edu
+  - bradywilliams2029@gmail.com
+  - bmw60291@uga.edu
+  - Treyvwilson@gmail.com
+  - vdw75026@uga.edu
+  reply_to: ''
   authorized_reply_senders: []
   max_topics: 10
   minimum_actionability_score: 3
   maximum_attachment_bytes: 5000000
   maximum_total_attachment_bytes: 10000000
-
 sources:
   reddit:
     enabled: true
@@ -239,18 +889,138 @@ sources:
     include_top_level_comments: false
     min_request_interval_seconds: 61
     lookback_days: 7
-    feeds: [new]
+    feeds:
+    - new
     max_pages: 1
   usg_board:
     enabled: false
     archive_url: https://www.usg.edu/regents/meetings/date/{year}/
     min_request_interval_seconds: 0.5
-    document_kinds: [agenda, minutes, notice, committee]
+    document_kinds:
+    - agenda
+    - minutes
+    - notice
+    - committee
   newsletters:
     enabled: true
     min_request_interval_seconds: 0.5
     max_articles_per_feed: 3
     fetch_article_body: false
+    require_campus_signal: true
   yikyak:
     enabled: false
     provider: null
+  hackathons:
+    enabled: true
+    min_request_interval_seconds: 1
+    require_winner: true
+    require_sga_relevance: true
+  instagram:
+    enabled: true
+    min_request_interval_seconds: 1
+    max_posts_per_account: 8
+    drop_sports: true
+  sga:
+    enabled: true
+    min_request_interval_seconds: 1
+    max_items_per_target: 12
+    fetch_body: true
+  governance:
+    enabled: true
+    min_request_interval_seconds: 1
+    max_items_per_target: 10
+    fetch_body: true
+  local_gov:
+    enabled: true
+    min_request_interval_seconds: 1
+    max_items_per_target: 10
+    fetch_body: true
+  legislatures:
+    enabled: true
+    min_request_interval_seconds: 1
+    max_items_per_target: 12
+    fetch_body: true
+    targets:
+    - name: Georgia Legislature
+      url: https://legiscan.com/GA
+      jurisdiction: Georgia
+    - name: Florida Legislature
+      url: https://legiscan.com/FL
+      jurisdiction: Florida
+    - name: Alabama Legislature
+      url: https://legiscan.com/AL
+      jurisdiction: Alabama
+    - name: Mississippi Legislature
+      url: https://legiscan.com/MS
+      jurisdiction: Mississippi
+    - name: Tennessee Legislature
+      url: https://legiscan.com/TN
+      jurisdiction: Tennessee
+    - name: Texas Legislature
+      url: https://legiscan.com/TX
+      jurisdiction: Texas
+    - name: Massachusetts Legislature
+      url: https://legiscan.com/MA
+      jurisdiction: Massachusetts
+    - name: New York Legislature
+      url: https://legiscan.com/NY
+      jurisdiction: New York
+    - name: California Legislature
+      url: https://legiscan.com/CA
+      jurisdiction: California
+    - name: Michigan Legislature
+      url: https://legiscan.com/MI
+      jurisdiction: Michigan
+    - name: Wisconsin Legislature
+      url: https://legiscan.com/WI
+      jurisdiction: Wisconsin
+    - name: North Carolina Legislature
+      url: https://legiscan.com/NC
+      jurisdiction: North Carolina
+    - name: Virginia Legislature
+      url: https://legiscan.com/VA
+      jurisdiction: Virginia
+    - name: Ohio Legislature
+      url: https://legiscan.com/OH
+      jurisdiction: Ohio
+    - name: Illinois Legislature
+      url: https://legiscan.com/IL
+      jurisdiction: Illinois
+    - name: Indiana Legislature
+      url: https://legiscan.com/IN
+      jurisdiction: Indiana
+    - name: Maryland Legislature
+      url: https://legiscan.com/MD
+      jurisdiction: Maryland
+    - name: Minnesota Legislature
+      url: https://legiscan.com/MN
+      jurisdiction: Minnesota
+    - name: Washington Legislature
+      url: https://legiscan.com/WA
+      jurisdiction: Washington
+    - name: Oregon Legislature
+      url: https://legiscan.com/OR
+      jurisdiction: Oregon
+    - name: Arizona Legislature
+      url: https://legiscan.com/AZ
+      jurisdiction: Arizona
+    - name: Missouri Legislature
+      url: https://legiscan.com/MO
+      jurisdiction: Missouri
+    - name: Oklahoma Legislature
+      url: https://legiscan.com/OK
+      jurisdiction: Oklahoma
+  trade_press:
+    enabled: true
+    min_request_interval_seconds: 1
+    max_items_per_target: 15
+    fetch_body: true
+    targets:
+    - name: Inside Higher Ed
+      url: https://www.insidehighered.com/rss.xml
+    - name: Higher Ed Dive
+      url: https://www.highereddive.com/feeds/news/
+    - name: Chronicle of Higher Education
+      url: https://www.chronicle.com/news
+    - name: Diverse Education
+      url: https://www.diverseeducation.com/rss

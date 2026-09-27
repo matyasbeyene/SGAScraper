@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Higher Ed</title>
+    <item>
+      <title>Campuses expand housing after occupancy crunch</title>
+      <link>https://www.insidehighered.com/news/2026/09/10/housing</link>
+      <pubDate>Wed, 10 Sep 2026 12:00:00 GMT</pubDate>
+      <description>Universities are adding residence hall beds and reforming student housing waitlists.</description>
+    </item>
+    <item>
+      <title>Football home opener recap</title>
+      <link>https://www.insidehighered.com/news/2026/09/11/football</link>
+      <pubDate>Thu, 11 Sep 2026 12:00:00 GMT</pubDate>
+      <description>The ranked team defeats a rival on the scoreboard.</description>
+    </item>
+  </channel>
+</rss>

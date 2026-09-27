@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
@@ -17,6 +18,60 @@ ATOM_NS = "{http://www.w3.org/2005/Atom}"
 CONTENT_NS = "{http://purl.org/rss/1.0/modules/content/}"
 DC_NS = "{http://purl.org/dc/elements/1.1/}"
 DEFAULT_USER_AGENT = "agentsenate/0.1 (+campus source monitor)"
+
+CAMPUS_SIGNAL = re.compile(
+    r"\b(?:student government|sga|student senate|resident assistant|ra|dorm|"
+    r"residence hall|housing|dining|meal plan|transit|shuttle|bus(?:es)?|parking|towing|"
+    r"campus safety|title ix|food pantry|food insecurity|textbook|tuition|"
+    r"student fees|accessibility|american sign language|asl|disability|"
+    r"mental health|counseling|orientation|first-gen|first generation|"
+    r"international student|advising|waitlist|registration|occupancy|"
+    r"late[- ]night|campus lighting|bike share|laundry|rec center|"
+    r"student union|commuter|enrollment|faculty senate|board of regents|"
+    r"policy|fees?|legislation|resolution|ordinance)\b",
+    re.IGNORECASE,
+)
+POLICY_SIGNAL = re.compile(
+    r"\b(?:housing|residence hall|dining|meal plan|transit|shuttle|bus(?:es)?|"
+    r"parking|tuition|student fees?|textbook|title ix|food pantry|food insecurity|"
+    r"mental health|counseling|accessibility|disability|campus safety|lighting|"
+    r"library|amnesty|child ?care|health care|healthcare|first-gen|first generation|"
+    r"international student|orientation|waitlist|higher education|university|"
+    r"college|campus|sga|student government|student senate|legislation|"
+    r"resolution|senate bill|ordinance|zoning|"
+    r"landlord|tenant|sidewalk|noise|scholarship|hope scholarship|board of "
+    r"regents|faculty senate|student fee)\b",
+    re.IGNORECASE,
+)
+CEREMONIAL_NOISE = re.compile(
+    r"congratulat|in memoriam|celebrating the life|commending|codes revision|"
+    r"roster clarification|rules and procedures",
+    re.IGNORECASE,
+)
+SPORTS_NOISE = re.compile(
+    r"\b(football|basketball|baseball|softball|soccer|golf|volleyball|"
+    r"scoreboard|home opener|ranked no\.?|defeats|beats)\b",
+    re.IGNORECASE,
+)
+
+
+def is_campus_signal(title: str, text: str = "") -> bool:
+    blob = f"{title}\n{text}"
+    return bool(CAMPUS_SIGNAL.search(blob))
+
+
+def is_sports_noise(title: str, text: str = "") -> bool:
+    blob = f"{title}\n{text}"
+    return bool(SPORTS_NOISE.search(blob)) and not is_campus_signal(title, text)
+
+
+def is_policy_signal(title: str, text: str = "") -> bool:
+    return bool(POLICY_SIGNAL.search(f"{title}\n{text}"))
+
+
+def is_ceremonial_noise(title: str, text: str = "") -> bool:
+    blob = f"{title}\n{text}"
+    return bool(CEREMONIAL_NOISE.search(blob)) and not is_policy_signal(title, text)
 
 
 def content_hash(*parts: str) -> str:
@@ -95,9 +150,11 @@ def xml_link(node: Element) -> str:
 def parse_datetime(raw: str | None) -> datetime | None:
     if not raw:
         return None
-    text = raw.strip()
+    text = raw.strip().replace("Z", "+00:00")
+    if re.search(r"[+-]\d{4}$", text) and text[-3] != ":":
+        text = f"{text[:-2]}:{text[-2:]}"
     try:
-        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(text)
     except ValueError:
         try:
             parsed = parsedate_to_datetime(text)

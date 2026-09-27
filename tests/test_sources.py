@@ -8,9 +8,37 @@ from pathlib import Path
 import httpx
 from pypdf import PdfWriter
 
-from agentsenate.config import NewsletterConfig, RedditConfig, USGConfig, load_file_config
-from agentsenate.models import NewsletterTarget, School, SourceCategory
-from agentsenate.sources import NewsletterSource, RedditSource, USGBoardSource
+from agentsenate.config import (
+    HackathonConfig,
+    InstagramConfig,
+    LegislatureConfig,
+    ListingConfig,
+    NewsletterConfig,
+    RedditConfig,
+    TradePressConfig,
+    USGConfig,
+    YikYakConfig,
+    load_file_config,
+)
+from agentsenate.models import (
+    HackathonTarget,
+    NamedTarget,
+    NewsletterTarget,
+    School,
+    SourceCategory,
+)
+from agentsenate.sources import (
+    HackathonSource,
+    InstagramSource,
+    LegislatureSource,
+    LocalGovSource,
+    NewsletterSource,
+    RedditSource,
+    SGASource,
+    TradePressSource,
+    USGBoardSource,
+    YikYakSource,
+)
 from agentsenate.sources.usg import parse_meeting_date
 
 
@@ -277,8 +305,215 @@ def test_newsletter_html_listing_fetches_article_body() -> None:
     assert items[0].university_name == "Example University"
 
 
+def test_hackathon_keeps_only_sga_related_winners() -> None:
+    gallery = "https://ugahacks-11.devpost.com/project-gallery"
+    html = Path("tests/fixtures/hackathon_gallery.html").read_text(encoding="utf-8")
+    client = Router({gallery: _text_response(gallery, html)})
+    source = HackathonSource(
+        HackathonConfig(min_request_interval_seconds=0),
+        [
+            School(
+                name="University of Georgia",
+                hackathons=[HackathonTarget(name="UGAHacks 11", url=gallery)],
+            )
+        ],
+        client=client,  # type: ignore[arg-type]
+        sleeper=lambda _: None,
+    )
+    items = source.fetch(datetime(2026, 9, 15, tzinfo=UTC), timedelta(days=30))
+    assert [item.title for item in items] == ["AURA"]
+    assert items[0].source_category == SourceCategory.HACKATHON
+
+
+def test_sga_keeps_policy_bills_and_drops_ceremonial() -> None:
+    listing = "https://sg.example.edu/legislation/"
+    client = Router(
+        {
+            listing: _text_response(
+                listing, Path("tests/fixtures/sga_listing.html").read_text(encoding="utf-8")
+            )
+        }
+    )
+    source = SGASource(
+        ListingConfig(min_request_interval_seconds=0, fetch_body=False),
+        [
+            School(
+                name="Example University",
+                sga=[NamedTarget(name="Senate", url=listing)],
+            )
+        ],
+        client=client,  # type: ignore[arg-type]
+        sleeper=lambda _: None,
+    )
+    items = source.fetch(datetime(2026, 9, 15, tzinfo=UTC), timedelta(days=30))
+    assert [item.title for item in items] == [
+        "Student Senate Bill 2026-1080 Late-Night Transit Act"
+    ]
+    assert items[0].source_category == SourceCategory.SGA
+
+
+def test_local_gov_keeps_campus_adjacent_ordinances() -> None:
+    listing = "https://city.example.gov/calendar"
+    client = Router(
+        {
+            listing: _text_response(
+                listing, Path("tests/fixtures/localgov_listing.html").read_text(encoding="utf-8")
+            )
+        }
+    )
+    source = LocalGovSource(
+        ListingConfig(min_request_interval_seconds=0, fetch_body=False),
+        [
+            School(
+                name="Example University",
+                local_gov=[NamedTarget(name="City Council", url=listing)],
+            )
+        ],
+        client=client,  # type: ignore[arg-type]
+        sleeper=lambda _: None,
+    )
+    items = source.fetch(datetime(2026, 9, 15, tzinfo=UTC), timedelta(days=30))
+    assert len(items) == 1
+    assert "bus" in items[0].title.lower()
+    assert items[0].source_category == SourceCategory.LOCAL_GOVERNMENT
+
+
+def test_legislature_keeps_higher_ed_bills() -> None:
+    listing = "https://legiscan.com/GA"
+    client = Router(
+        {
+            listing: _text_response(
+                listing, Path("tests/fixtures/legislature_listing.html").read_text(encoding="utf-8")
+            )
+        }
+    )
+    source = LegislatureSource(
+        LegislatureConfig(
+            min_request_interval_seconds=0,
+            fetch_body=False,
+            targets=[NamedTarget(name="Georgia", url=listing, jurisdiction="Georgia")],
+        ),
+        client=client,  # type: ignore[arg-type]
+        sleeper=lambda _: None,
+    )
+    items = source.fetch(datetime(2026, 9, 15, tzinfo=UTC), timedelta(days=30))
+    assert len(items) == 1
+    assert "tuition" in items[0].title.lower()
+    assert items[0].source_category == SourceCategory.STATE_LEGISLATURE
+
+
+def test_trade_press_keeps_campus_policy_and_drops_sports() -> None:
+    feed = "https://www.insidehighered.com/rss.xml"
+    client = Router(
+        {
+            feed: _text_response(
+                feed,
+                Path("tests/fixtures/tradepress.rss").read_text(encoding="utf-8"),
+                content_type="application/rss+xml",
+            )
+        }
+    )
+    source = TradePressSource(
+        TradePressConfig(
+            min_request_interval_seconds=0,
+            fetch_body=False,
+            targets=[NamedTarget(name="Inside Higher Ed", url=feed)],
+        ),
+        client=client,  # type: ignore[arg-type]
+        sleeper=lambda _: None,
+    )
+    items = source.fetch(datetime(2026, 9, 15, tzinfo=UTC), timedelta(days=30))
+    assert [item.title for item in items] == ["Campuses expand housing after occupancy crunch"]
+    assert items[0].source_category == SourceCategory.TRADE_PRESS
+
+
+def test_instagram_keeps_official_posts_and_skips_without_a_token() -> None:
+    school = School(name="University of Georgia", instagram=["universityofga"])
+    empty = InstagramSource(InstagramConfig(min_request_interval_seconds=0), [school])
+    assert empty.fetch(datetime(2026, 9, 15, tzinfo=UTC), timedelta(days=30)) == []
+
+    graph = "https://graph.facebook.com/v22.0/17841400000000000"
+    payload = {
+        "business_discovery": {
+            "username": "universityofga",
+            "media": {
+                "data": [
+                    {
+                        "id": "1",
+                        "caption": "Residence hall occupancy town hall Thursday.",
+                        "permalink": "https://www.instagram.com/p/housing/",
+                        "timestamp": "2026-09-10T12:00:00+0000",
+                        "media_type": "IMAGE",
+                    },
+                    {
+                        "id": "2",
+                        "caption": "Football home opener: Bulldogs defeat the Tigers.",
+                        "permalink": "https://www.instagram.com/p/football/",
+                        "timestamp": "2026-09-11T12:00:00+0000",
+                        "media_type": "IMAGE",
+                    },
+                ]
+            },
+        }
+    }
+    client = Router({graph: _json_response(graph, payload)})
+    source = InstagramSource(
+        InstagramConfig(min_request_interval_seconds=0),
+        [school],
+        access_token="ig-test",
+        business_account_id="17841400000000000",
+        client=client,  # type: ignore[arg-type]
+        sleeper=lambda _: None,
+    )
+    items = source.fetch(datetime(2026, 9, 15, tzinfo=UTC), timedelta(days=30))
+    assert [item.title for item in items] == ["Residence hall occupancy town hall Thursday."]
+    assert items[0].source == "instagram"
+    assert items[0].source_category == SourceCategory.SOCIAL
+
+
 def test_schools_yaml_includes_a_newsletter_for_every_school() -> None:
     config = load_file_config(Path("config/schools.yaml"))
     assert config.sources.newsletters.enabled is True
     missing = [school.name for school in config.schools if not school.newsletters]
     assert missing == []
+    names = {school.name for school in config.schools}
+    assert {
+        "Harvard University",
+        "Yale University",
+        "University of Michigan",
+        "University of North Carolina at Chapel Hill",
+        "Ohio State University",
+    } <= names
+    assert any(school.sga for school in config.schools)
+    assert config.sources.legislatures.targets
+    assert config.sources.trade_press.targets
+    assert config.sources.instagram.enabled is True
+    missing_ig = [school.name for school in config.schools if not school.instagram]
+    assert missing_ig == []
+    papers = {target.name for school in config.schools for target in school.newsletters}
+    expected_papers = {
+        "The Red & Black",
+        "Independent Florida Alligator",
+        "Technique",
+        "Emory Wheel",
+    }
+    assert expected_papers <= papers
+
+
+def test_yikyak_saves_exported_pdfs(tmp_path: Path) -> None:
+    drop = tmp_path / "yikyak"
+    drop.mkdir()
+    pdf_path = drop / "UGA-late-night-buses.pdf"
+    pdf_path.write_bytes(_pdf_bytes())
+    source = YikYakSource(
+        YikYakConfig(enabled=True, provider="local_pdfs", drop_dir=drop),
+        [School(name="University of Georgia", aliases=["UGA"])],
+    )
+    items = source.fetch(datetime.now(UTC), timedelta(days=30))
+    saved = list((drop / "saved").glob("*.pdf"))
+    assert len(items) == 1
+    assert len(saved) == 1
+    assert items[0].source == "yikyak"
+    assert items[0].university_name == "University of Georgia"
+    assert items[0].metadata["original_filename"] == "UGA-late-night-buses.pdf"
+    assert Path(str(items[0].metadata["saved_path"])) == saved[0]
