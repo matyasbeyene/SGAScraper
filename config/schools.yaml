@@ -17,6 +17,7 @@ schools:
     state: Georgia
   instagram:
   - universityofga
+  - ugasga
   hackathons:
   - name: UGAHacks 11
     url: https://ugahacks-11.devpost.com/project-gallery
@@ -48,6 +49,7 @@ schools:
     state: Alabama
   instagram:
   - uofalabama
+  - uasga
   hackathons:
   - name: CrimsonHacks
     url: https://crimsonhacks.devpost.com/project-gallery
@@ -91,6 +93,7 @@ schools:
     state: Alabama
   instagram:
   - auburnu
+  - auburnsga
   sga:
   - name: Auburn SGA
     url: https://www.auburn.edu/sga/
@@ -112,6 +115,7 @@ schools:
     state: Florida
   instagram:
   - uflorida
+  - ufstudentgov
   hackathons:
   - name: SwampHacks X
     url: https://swamphacksx.devpost.com/project-gallery
@@ -175,6 +179,7 @@ schools:
     state: Mississippi
   instagram:
   - olemiss
+  - olemissasb
   governance:
   - name: Mississippi IHL Board
     url: https://www.mississippi.edu/ihl/
@@ -288,6 +293,7 @@ schools:
     state: Texas
   instagram:
   - utaustin
+  - ut_sg
   governance:
   - name: UT System Board of Regents
     url: https://www.utsystem.edu/board-of-regents/meetings
@@ -313,6 +319,7 @@ schools:
     state: Texas
   instagram:
   - tamu
+  - tamu_sga
 - name: Vanderbilt University
   aliases:
   - Vanderbilt
@@ -393,6 +400,7 @@ schools:
     state: New York
   instagram:
   - cornelluniversity
+  - cornell_studentassembly
   sga:
   - name: Cornell Student Assembly
     url: https://assembly.cornell.edu/student-assembly
@@ -428,6 +436,7 @@ schools:
     state: Massachusetts
   instagram:
   - harvard
+  - theharvardua
   sga:
   - name: Harvard Undergraduate Council Archives
     url: https://www.harvarduc.org/archives
@@ -452,6 +461,7 @@ schools:
     state: Pennsylvania
   instagram:
   - uofpenn
+  - pennua
   sga:
   - name: Penn Undergraduate Assembly
     url: https://www.pennua.org/
@@ -475,6 +485,7 @@ schools:
     state: New Jersey
   instagram:
   - princeton
+  - princeton_usg
   sga:
   - name: Princeton USG
     url: https://www.princetonusg.com/
@@ -494,6 +505,7 @@ schools:
     state: Connecticut
   instagram:
   - yale
+  - yalecollegecouncil
   sga:
   - name: Yale College Council
     url: https://ycc.yalecollege.yale.edu/
@@ -508,6 +520,7 @@ schools:
   - Georgia Institute of Technology
   instagram:
   - georgiatech
+  - gtsga
   subreddits:
   - gatech
   newsletters:
@@ -532,6 +545,7 @@ schools:
   - Emory
   instagram:
   - emoryuniversity
+  - sgaemory
   subreddits:
   - Emory
   newsletters:
@@ -556,6 +570,7 @@ schools:
   - GSU
   instagram:
   - georgiastateuniversity
+  - sga_gsu
   subreddits:
   - GaState
   newsletters:
@@ -575,6 +590,7 @@ schools:
   - GaSou
   instagram:
   - georgiasouthern
+  - _gsusga
   subreddits:
   - GSU
   - georgiasouthern
@@ -591,6 +607,7 @@ schools:
   - UMich
   instagram:
   - uofmichigan
+  - umcsg
   subreddits:
   - uofm
   newsletters:
@@ -630,6 +647,7 @@ schools:
   - Cal
   instagram:
   - ucberkeleyofficial
+  - theasuc
   subreddits:
   - berkeley
   newsletters:
@@ -650,6 +668,7 @@ schools:
   - UW-Madison
   instagram:
   - uwmadison
+  - asm_madison
   subreddits:
   - UWMadison
   newsletters:
@@ -670,6 +689,7 @@ schools:
   - Chapel Hill
   instagram:
   - uncchapelhill
+  - uncsenate
   subreddits:
   - UNC
   newsletters:
@@ -684,6 +704,7 @@ schools:
   - Virginia
   instagram:
   - uva
+  - uvastudentcouncil
   subreddits:
   - UVA
   newsletters:
@@ -697,6 +718,7 @@ schools:
   - FSU
   instagram:
   - floridastateuniversity
+  - fsusga
   subreddits:
   - fsu
   newsletters:
@@ -724,6 +746,7 @@ schools:
   - NCSU
   instagram:
   - ncstate
+  - ncstatesg
   subreddits:
   - NCSU
   newsletters:
@@ -738,6 +761,7 @@ schools:
   - OSU
   instagram:
   - theohiostateuniversity
+  - usg_osu
   subreddits:
   - osu
   newsletters:
@@ -779,6 +803,7 @@ schools:
   - IU
   instagram:
   - indianauniversity
+  - iustudentgov
   subreddits:
   - IndianaUniversity
   newsletters:
